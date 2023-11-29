@@ -136,6 +136,6 @@ export class AppModule implements NestModule {
           type: ['application/json', 'text/plain'],
         }),
       )
-      .forRoutes(ApiDirectMessageRoomController, ApiChatRoomController);
+      .forRoutes(ApiDirectMessageRoomController, ApiChatRoomController, ApiGameMatchingController);
   }
 }
