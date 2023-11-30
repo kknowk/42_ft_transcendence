@@ -147,6 +147,7 @@ export class UserService {
       .addSelect('u.displayName', 'displayName')
       .addSelect('u.last_activity_timestamp', 'last_activity_timestamp')
       .addSelect('u.activity_kind', 'activity_kind')
+      .addSelect('u.notice_read_id', 'notice_read_id')
       .distinctOn(['u.id'])
       .innerJoin('friends', 'f', 'u.id=f.id');
     const users = await userQuery.getRawMany();
@@ -367,6 +368,31 @@ export class UserService {
     query = addWhereCondition(rangeRequest, query, 'id', true);
     query = addOrderAndLimit(rangeRequest, query, 'id');
     const result = await query.getRawMany<{ id: number; content: string }>();
+    let maxId: number = -1;
+    for (const { id } of result) {
+      if (id > maxId) {
+        maxId = id;
+      }
+    }
+    const updateQuery = this.userRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        notice_read_id: maxId,
+      })
+      .where('id=:id', { id: rangeRequest.user_id });
+    await updateQuery.execute();
+    return result;
+  }
+
+  public async get_notice_count(rangeRequest: IRangeRequestWithUserId) {
+    let query = this.noticeRepository
+      .createQueryBuilder()
+      .select('id')
+      .where('user_id=:user_id', { user_id: rangeRequest.user_id });
+    query = addWhereCondition(rangeRequest, query, 'id', true);
+    query = addOrderAndLimit(rangeRequest, query, 'id');
+    const result = await query.getCount();
     return result;
   }
 }
