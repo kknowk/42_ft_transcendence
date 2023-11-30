@@ -13,3 +13,9 @@
 
 <slot />
 <footer />
+
+<style>
+  :global(body) {
+    margin: unset;
+  }
+</style>

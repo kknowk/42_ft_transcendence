@@ -394,10 +394,11 @@ export class UserService {
       .createQueryBuilder()
       .select('id', 'id')
       .addSelect('content', 'content')
+      .addSelect('date', 'date')
       .where('user_id=:user_id', { user_id: rangeRequest.user_id });
     query = addWhereCondition(rangeRequest, query, 'id', true);
     query = addOrderAndLimit(rangeRequest, query, 'id');
-    const result = await query.getRawMany<{ id: number; content: string }>();
+    const result = await query.getRawMany<{ id: number; content: string, date: number }>();
     let maxId: number = -1;
     for (const { id } of result) {
       if (id > maxId) {
