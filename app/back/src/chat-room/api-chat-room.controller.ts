@@ -232,4 +232,10 @@ export class ApiChatRoomController {
       body.end_time,
     );
   }
+
+  @Post('invite-game/:room_id')
+  async invite_game(
+    @Req() req: Request,
+    @Param('room_id', ParseIntPipe) room_id: number,
+  ) {}
 }

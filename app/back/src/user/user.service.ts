@@ -25,6 +25,7 @@ import {
   addWhereCondition,
   addOrderAndLimit,
 } from '../utility/range-request.js';
+import { InsertQueryBuilder } from 'typeorm/browser';
 
 @Injectable()
 export class UserService {
@@ -320,6 +321,18 @@ export class UserService {
     return await this.userRepository.exist({ where: { id: user_id } });
   }
 
+  public async get_display_name(user_id: number): Promise<string | null> {
+    const query = this.userRepository
+      .createQueryBuilder()
+      .select('displayName', 'displayName')
+      .where('id=:user_id', { user_id });
+    const result = await query.getRawOne();
+    if (result == null) {
+      return null;
+    }
+    return result.displayName;
+  }
+
   public async get_users(
     requester_id: number,
     user_ids: number[],
@@ -345,18 +358,35 @@ export class UserService {
     return result;
   }
 
-  public async notify(user_id: number, content: string) {
-    const query = this.noticeRepository
-      .createQueryBuilder()
-      .insert()
-      .values({
+  public async notify(user_id: number | number[], content: string) {
+    let query: InsertQueryBuilder<any>;
+    const now = Math.floor(Date.now() / 1000);
+    if (typeof user_id === 'number') {
+      query = this.noticeRepository.createQueryBuilder().insert().values({
         user_id,
         content,
-      })
-      .returning('id');
-    const result = await query.execute();
-    const id = result.generatedMaps[0].id;
-    return id as number;
+        date: now,
+      });
+    } else if (user_id instanceof Array) {
+      if (user_id.length === 0) {
+        return;
+      }
+      query = this.noticeRepository
+        .createQueryBuilder()
+        .insert()
+        .values(
+          user_id.map((value) => {
+            return {
+              user_id: value,
+              content,
+              date: now,
+            };
+          }),
+        );
+    } else {
+      return;
+    }
+    await query.execute();
   }
 
   public async get_notice(rangeRequest: IRangeRequestWithUserId) {

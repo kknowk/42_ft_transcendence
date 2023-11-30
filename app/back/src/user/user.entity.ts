@@ -255,6 +255,13 @@ export class Notice {
     default: '',
   })
   content: string;
+
+  @Column({
+    type: 'int',
+    default: 0,
+    comment: 'utc seconds'
+  })
+  date: number;
 }
 
 export type INotice = {
