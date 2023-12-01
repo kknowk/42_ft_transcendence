@@ -88,3 +88,9 @@
         {/each}
     {/await}
 </ul>
+
+<style>
+  search {
+    margin-top: 1em;
+  }
+</style>
