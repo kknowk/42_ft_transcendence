@@ -26,6 +26,7 @@ import {
   addOrderAndLimit,
 } from '../utility/range-request.js';
 import { InsertQueryBuilder } from 'typeorm/browser';
+import { genSalt, hash } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -398,7 +399,11 @@ export class UserService {
       .where('user_id=:user_id', { user_id: rangeRequest.user_id });
     query = addWhereCondition(rangeRequest, query, 'id', true);
     query = addOrderAndLimit(rangeRequest, query, 'id');
-    const result = await query.getRawMany<{ id: number; content: string, date: number }>();
+    const result = await query.getRawMany<{
+      id: number;
+      content: string;
+      date: number;
+    }>();
     let maxId: number = -1;
     for (const { id } of result) {
       if (id > maxId) {
@@ -425,5 +430,48 @@ export class UserService {
     query = addOrderAndLimit(rangeRequest, query, 'id');
     const result = await query.getCount();
     return result;
+  }
+
+  public async set_2fa_temp(requester_id: number, value: string | Buffer) {
+    const newSalt = await genSalt();
+    const validEnd = Math.floor(Date.now() / 1000) + 60 * 10 * 1000;
+    const newHash = await hash(value, newSalt);
+    const query = this.userRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        two_factor_temp: newHash,
+        two_factor_salt: newSalt,
+        two_factor_valid_limit: validEnd,
+      })
+      .where('id=:requester_id AND two_factor_authentication_required', {
+        requester_id,
+      });
+    await query.execute();
+  }
+
+  public async compare_2fa(
+    requester_id: number,
+    value: string | Buffer,
+  ): Promise<boolean | null> {
+    const query = this.userRepository
+      .createQueryBuilder()
+      .select('two_factor_temp', 'two_factor_temp')
+      .addSelect('two_factor_salt', 'two_factor_salt')
+      .addSelect('two_factor_valid_limit', 'two_factor_valid_limit')
+      .where('id=:requester_id AND two_factor_authentication_required', {
+        requester_id,
+      });
+    const result = await query.getRawOne();
+    if (result == null) {
+      return null;
+    }
+    const now = Math.floor(Date.now() / 1000);
+    if (now > result.two_factor_valid_limit) {
+      return false;
+    }
+    const hashed = await hash(value, result.two_factor_salt);
+    const compareResult = hashed === result.two_factor_temp;
+    return compareResult;
   }
 }

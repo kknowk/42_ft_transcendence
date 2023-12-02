@@ -10,17 +10,3 @@ export async function load(ev: PageServerLoadEvent) {
     user,
   };
 }
-
-export const actions: Actions = {
-  default: async (event: RequestEvent) => {
-    const userChallenge = (await event.request.formData())?.get('challenge')?.valueOf();
-    if (typeof userChallenge !== 'string') return { success: false };
-    const res = await event.fetch('/auth/challenge/' + userChallenge, {
-      method: 'POST',
-      credentials: 'same-origin',
-      cache: 'no-cache',
-    });
-    if (res.ok) return { success: true };
-    return { success: false };
-  },
-};

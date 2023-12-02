@@ -1,47 +1,66 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import type { ActionData, PageData } from './$types';
-  import { goto } from '$app/navigation';
-  import { enhance } from '$app/forms';
+  import { onMount } from "svelte";
+  import type { ActionData, PageData } from "./$types";
+  import { goto } from "$app/navigation";
+  import { enhance } from "$app/forms";
 
   export let data: PageData;
-  export let form: ActionData;
 
+  let success: boolean | null = null;
   let recommendation = false;
   let submit_button: HTMLInputElement;
 
   const sendMail = async () => {
     if (data.user?.is_two_factor_authenticated) {
-      goto('/home', { invalidateAll: true });
+      goto("/home", { invalidateAll: true });
     }
     recommendation = false;
-    submit_button.setAttribute('disabled', 'disabled');
-    const response = await fetch('/auth/send-mail', {
-      method: 'POST',
-      credentials: 'same-origin',
-      mode: 'same-origin',
-      cache: 'no-cache',
+    submit_button.setAttribute("disabled", "disabled");
+    const response = await fetch("/auth/send-mail", {
+      method: "POST",
+      credentials: "same-origin",
+      mode: "same-origin",
+      cache: "no-cache",
     });
     if (response.ok) {
-      submit_button.removeAttribute('disabled');
+      submit_button.removeAttribute("disabled");
     } else {
       recommendation = true;
     }
   };
 
   onMount(sendMail);
+
+  async function submitFunction(ev: SubmitEvent) {
+    ev.preventDefault();
+    const formData = new FormData(ev.target as HTMLFormElement);
+    const challenge = formData.get("challenge")?.valueOf();
+    if (typeof challenge !== "string") {
+      return;
+    }
+    const response = await fetch(`/auth/challenge/${challenge.trim()}`, {
+      method: "POST",
+    });
+    success = response.ok;
+    if (success) {
+      await goto("/home", {
+        invalidateAll: true,
+        replaceState: true,
+      });
+    }
+  }
 </script>
 
 <svelte:head>
   <title>Two Factor Authentication Page</title>
 </svelte:head>
-<form method="post" use:enhance action="/home/auth">
+<form method="post" on:submit={submitFunction}>
   <label>
     Challenge Code (6 digit):
     <input name="challenge" type="text" pattern="[0-9]{'{'}6{'}'}" />
   </label>
   <input disabled bind:this={submit_button} type="submit" />
-  {#if form != null && form.success === false}
+  {#if success === false}
     <p>Challenge code is invalid. Please retry.</p>
   {/if}
 </form>

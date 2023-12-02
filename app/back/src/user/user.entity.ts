@@ -55,6 +55,25 @@ export class User {
   })
   notice_read_id: number;
 
+  @Column({
+    type: 'varchar',
+    default: '',
+  })
+  two_factor_temp: string;
+
+  @Column({
+    type: 'varchar',
+    default: '',
+  })
+  two_factor_salt: string;
+
+  @Column({
+    type: 'int',
+    default: 0,
+    comment: 'utc seconds',
+  })
+  two_factor_valid_limit: number;
+
   to_interface() {
     return {
       id: this.id,
@@ -69,13 +88,17 @@ export class User {
   }
 }
 
-type _IUser = {
-  [K in keyof Omit<User, 'to_interface'>]: User[K];
-};
-
-export interface IUser extends _IUser {
+export type IUser = {
+  [K in keyof Omit<
+    User,
+    | 'to_interface'
+    | 'two_factor_temp'
+    | 'two_factor_salt'
+    | 'two_factor_valid_limit'
+  >]: User[K];
+} & {
   is_two_factor_authenticated: boolean;
-}
+};
 
 @Entity()
 export class User42Cross {
@@ -259,7 +282,7 @@ export class Notice {
   @Column({
     type: 'int',
     default: 0,
-    comment: 'utc seconds'
+    comment: 'utc seconds',
   })
   date: number;
 }
