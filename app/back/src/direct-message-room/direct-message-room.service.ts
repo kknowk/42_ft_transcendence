@@ -198,7 +198,7 @@ export class DirectMessageRoomService {
       );
       await this.userService.notify(
         counterpart_id,
-        `New Message@<a href="/home/direct-message/${requester_id}">${await this.userService.get_display_name(
+        `New Message from <a href="/home/direct-message/${requester_id}">${await this.userService.get_display_name(
           requester_id,
         )}</a>`,
       );

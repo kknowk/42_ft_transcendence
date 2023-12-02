@@ -4,7 +4,7 @@
   import EnterKeyTextarea from "$lib/components/enter-key-textarea.svelte";
   import InfiniteScrolling from "$lib/components/infinite-scrolling.svelte";
   import { onDestroy, onMount } from "svelte";
-  import type { PartialChatLog } from "$lib/back/chat-room/chat-room.entity";
+  import type { IChatLog } from "$lib/back/chat-room/chat-room.entity";
   import { browser } from "$app/environment";
   import { goto } from "$app/navigation";
 
@@ -25,7 +25,7 @@
 
   async function renewLogs(response: Response) {
     if (response.ok) {
-      const new_logs = (await response.json()) as PartialChatLog[] | null;
+      const new_logs = (await response.json()) as IChatLog[] | null;
       if (new_logs != null && new_logs.length > 0) {
         if (logs) {
           new_logs.push(...logs);
@@ -107,7 +107,7 @@
     if (!response.ok) {
       return;
     }
-    const old_logs = (await response.json()) as PartialChatLog[] | null;
+    const old_logs = (await response.json()) as IChatLog[] | null;
     if (old_logs != null && old_logs.length > 0) {
       if (logs) {
         logs.push(...old_logs);

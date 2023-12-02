@@ -3,6 +3,7 @@
   import type { PageData } from "./$types";
   import { browser } from "$app/environment";
   import { showTimeDiff } from "$lib/time-helper";
+  import { invalidateAll } from "$app/navigation";
 
   export let data: PageData;
 
@@ -13,7 +14,7 @@
     return date.toString();
   }
 
-  onMount(() => {
+  onMount(async () => {
     intervalId = setInterval(() => {
       now = Math.floor(Date.now() / 1000);
     }, 600000) as any as number;
@@ -24,9 +25,17 @@
       clearInterval(intervalId);
     }
   });
+
+  async function clearNoticeFunc() {
+    await fetch(`/api/user/clear-notice`, {
+      method: "POST",
+    });
+    await invalidateAll();
+  }
 </script>
 
 <main>
+  <button on:click={clearNoticeFunc}>Clear</button>
   <ul>
     {#each data.notices as notice}
       <li id="notice-{notice.id.toString()}">
@@ -38,3 +47,10 @@
     {/each}
   </ul>
 </main>
+
+<style>
+  li {
+    list-style: none;
+    padding: 0.5em;
+  }
+</style>

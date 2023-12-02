@@ -102,12 +102,8 @@
   .grid-container {
     display: grid;
     grid-template-columns: 1fr auto;
-    min-height: 100vh;
+    min-height: max(100%, 100vh);
     padding-left: 0.5em;
-
-    & menu {
-      padding-inline-start: unset;
-    }
 
     & details.member-list {
       background-color: cornsilk;
@@ -127,7 +123,6 @@
 
       & ul {
         list-style: none;
-        padding-inline-start: unset;
 
         & li {
           & a {

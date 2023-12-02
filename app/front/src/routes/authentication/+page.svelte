@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { ActionData, PageData } from "./$types";
+  import type { PageData } from "./$types";
   import { goto } from "$app/navigation";
-  import { enhance } from "$app/forms";
 
   export let data: PageData;
 

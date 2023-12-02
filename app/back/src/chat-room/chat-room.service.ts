@@ -7,7 +7,7 @@ import {
   ChatLog,
   ChatRoomMembershipKind,
   ChatRoom,
-  PartialChatLog,
+  IChatLog,
   ChatRoomKind,
   IChatRoom,
   IChatRoomMembership,
@@ -101,7 +101,7 @@ export class ChatRoomService {
       })
       .where('kind=-1');
     const result = await query.execute();
-    console.log('cron: 10 minutes update' + result);
+    console.log('cron: 10 minutes update' + JSON.stringify(result));
   }
 
   async get_membership(
@@ -514,7 +514,7 @@ export class ChatRoomService {
   async get_logs(
     request: IRangeRequestWithUserId,
     room_id: number,
-  ): Promise<PartialChatLog[] | null> {
+  ): Promise<IChatLog[] | null> {
     const membership = await this.get_membership(room_id, request.user_id);
     if (membership == null || membership.kind < ChatRoomMembershipKind.member) {
       return null;
@@ -555,7 +555,7 @@ export class ChatRoomService {
       );
     query = addWhereCondition(request, query, 'log.id', true);
     query = addOrderAndLimit(request, query, 'log.id');
-    return await query.getRawMany<PartialChatLog>();
+    return await query.getRawMany<IChatLog>();
   }
 
   async create(

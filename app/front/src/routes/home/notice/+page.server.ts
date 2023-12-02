@@ -1,5 +1,8 @@
 import type { PageServerLoadEvent } from "./$types.js";
-import { createIRangeRequestWithUserFromURLSearchParams, getOriginalRequest, redirectToAuth } from "$lib/helpers.js";
+import {
+  createIRangeRequestWithUserFromURLSearchParams,
+  getOriginalRequest,
+} from "$lib/helpers.js";
 import { error } from "@sveltejs/kit";
 
 export async function load(ev: PageServerLoadEvent) {
@@ -12,7 +15,12 @@ export async function load(ev: PageServerLoadEvent) {
     throw error(500);
   }
   const params = ev.url.searchParams;
-  const rangeRequest = createIRangeRequestWithUserFromURLSearchParams(parent.user.id, params, 50, true);
+  const rangeRequest = createIRangeRequestWithUserFromURLSearchParams(
+    parent.user.id,
+    params,
+    undefined,
+    false
+  );
   if (rangeRequest === null) {
     throw error(500);
   }
@@ -20,5 +28,5 @@ export async function load(ev: PageServerLoadEvent) {
   return {
     user: parent.user,
     notices,
-  }
+  };
 }

@@ -33,7 +33,9 @@ export class AuthController {
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     if (req.cookies?.jwt) {
-      const decoded = this.jwtService.decode(req.cookies.jwt, { json: true }) as JwtPayload;
+      const decoded = this.jwtService.decode(req.cookies.jwt, {
+        json: true,
+      }) as JwtPayload;
       if (
         typeof decoded !== 'string' &&
         'sub' in decoded &&
@@ -66,9 +68,11 @@ export class AuthController {
     if (
       user.two_factor_authentication_required &&
       !user.is_two_factor_authenticated
-    )
-      res.redirect(307, '/home/auth');
-    else res.redirect(303, '/');
+    ) {
+      res.redirect(307, '/authentication');
+    } else {
+      res.redirect(303, '/');
+    }
   }
 
   @Get('pseudo/:user_id/:displayName')
@@ -85,7 +89,11 @@ export class AuthController {
       user_id_number,
       displayName,
     );
-    await this.authSerivce.update_jwt(user, res);
+    if (await this.authSerivce.update_jwt(user, res)) {
+      res.status(307);
+      res.location('/home');
+      return;
+    }
   }
 
   @Post('send-mail')
@@ -101,6 +109,7 @@ export class AuthController {
     const user = req.user as IUser;
     if (!user.two_factor_authentication_required) {
       res.status(403);
+      res.json(user);
       return;
     }
     const random_number = randomInt(0, 1000000).toString().padStart(6, '0');

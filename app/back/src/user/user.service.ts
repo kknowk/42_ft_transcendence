@@ -325,8 +325,8 @@ export class UserService {
 
   public async get_display_name(user_id: number): Promise<string | null> {
     const query = this.userRepository
-      .createQueryBuilder()
-      .select('displayName', 'displayName')
+      .createQueryBuilder('u')
+      .select('u.displayName', 'displayName')
       .where('id=:user_id', { user_id });
     const result = await query.getRawOne();
     if (result == null) {
@@ -362,12 +362,12 @@ export class UserService {
 
   public async notify(user_id: number | number[], content: string) {
     let query: InsertQueryBuilder<any>;
-    const now = Math.floor(Date.now() / 1000);
+    const date = Math.floor(Date.now() / 1000);
     if (typeof user_id === 'number') {
       query = this.noticeRepository.createQueryBuilder().insert().values({
         user_id,
         content,
-        date: now,
+        date,
       });
     } else if (user_id instanceof Array) {
       if (user_id.length === 0) {
@@ -381,10 +381,11 @@ export class UserService {
             return {
               user_id: value,
               content,
-              date: now,
+              date,
             };
           }),
-        );
+        )
+        .returning([]);
     } else {
       return;
     }
@@ -431,6 +432,22 @@ export class UserService {
     query = addOrderAndLimit(rangeRequest, query, 'id');
     const result = await query.getCount();
     return result;
+  }
+
+  public async clear_notice(requester_id: number) {
+    const { notice_read_id } = await this.userRepository
+      .createQueryBuilder()
+      .select('notice_read_id', 'notice_read_id')
+      .where('id=:requester_id', { requester_id })
+      .getRawOne();
+    const query = this.noticeRepository
+      .createQueryBuilder()
+      .delete()
+      .where('user_id=:requester_id AND id<=:notice_read_id', {
+        requester_id,
+        notice_read_id,
+      });
+    await query.execute();
   }
 
   public async set_2fa_temp(requester_id: number, value: string | Buffer) {

@@ -7,7 +7,7 @@ import { CookieOptions, Response } from 'express';
 export interface JwtPayload {
   sub: number; // id
   d: string; // displayName
-  iat: number; // last activity timestamp
+  l: number; // last activity timestamp
   k: UserActivityKind;
   a: boolean; // is 2fa
   n: number; // noticeReadId
@@ -15,10 +15,11 @@ export interface JwtPayload {
 }
 
 export const fromJwtPayloadToIUser = (value: JwtPayload): IUser => {
+  console.log('from jwt to IUser: ' + JSON.stringify(value));
   return {
     id: value.sub,
     displayName: value.d,
-    last_activity_timestamp: value.iat,
+    last_activity_timestamp: value.l,
     activity_kind: value.k,
     is_two_factor_authenticated: value.a,
     notice_read_id: value.n,
@@ -30,7 +31,7 @@ export const fromIUserToJwtPayload = (value: IUser): JwtPayload => {
   return {
     sub: value.id,
     d: value.displayName,
-    iat: value.last_activity_timestamp,
+    l: value.last_activity_timestamp,
     k: value.activity_kind,
     a: value.is_two_factor_authenticated,
     n: value.notice_read_id,
@@ -78,6 +79,7 @@ export class AuthService {
   }
 
   async update_jwt(user: IUser, res: Response) {
+    console.log('update jwt: ' + JSON.stringify(user));
     const access_token = await this.issue_jwt(user);
     if (access_token) {
       res.cookie('jwt', access_token, this.jwt_cookie_options);

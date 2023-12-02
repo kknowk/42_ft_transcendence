@@ -15,7 +15,7 @@
   .grid-container {
     display: grid;
     grid-template-columns: auto 1fr;
-    min-height: 100vh;
+    min-height: max(100%, 100vh);
   }
 
   .grid-main {

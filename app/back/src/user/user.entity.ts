@@ -32,8 +32,9 @@ export class User {
   displayName: string;
 
   @Column({
-    type: 'int8',
+    type: 'int',
     comment: 'UTC seconds',
+    default: 0,
   })
   last_activity_timestamp: number;
 
@@ -50,7 +51,7 @@ export class User {
   two_factor_authentication_required: boolean;
 
   @Column({
-    type: 'int8',
+    type: 'int',
     default: -1,
   })
   notice_read_id: number;
@@ -257,10 +258,10 @@ export type IUserWithRelationship = {
 
 @Entity()
 export class Notice {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => User, { nullable: false, cascade: ['remove'] })
+  @ManyToOne(() => User, { nullable: false, cascade: ['remove'] })
   @JoinColumn({
     name: 'user_id',
     referencedColumnName: 'id',

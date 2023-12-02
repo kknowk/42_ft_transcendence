@@ -2,10 +2,13 @@
   let area: HTMLTextAreaElement;
   let button: HTMLButtonElement;
 
-  export let sendMessageCallback: (areaElement: HTMLTextAreaElement, buttonElement: HTMLButtonElement) => Promise<void> | void;
+  export let sendMessageCallback: (
+    areaElement: HTMLTextAreaElement,
+    buttonElement: HTMLButtonElement
+  ) => Promise<void> | void;
 
   async function keydownHook(event: KeyboardEvent) {
-    if (event.key === 'Enter' && !event.shiftKey) {
+    if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       button.click();
     }
@@ -38,6 +41,8 @@
   }
 
   form {
+    
+
     & button {
       height: max-content;
     }

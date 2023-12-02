@@ -27,8 +27,10 @@ import { UserService } from './user.service.js';
 import { join } from 'path';
 import { createIRangeRequestWithUserFromURLSearchParams } from '../utility/range-request.js';
 import { diskStorage } from 'multer';
+import { JwtUpdateInterceptor } from '../auth/jwt.update.interceptor.js';
 
 @UseGuards(AuthGuard('jwt'))
+@UseInterceptors(JwtUpdateInterceptor)
 @Controller('api/user')
 export class ApiUserController {
   constructor(
@@ -162,6 +164,12 @@ export class ApiUserController {
         : user.notice_read_id;
     const answer = await this.userService.get_notice_count(rangeRequest);
     return answer;
+  }
+
+  @Post('clear-notice')
+  async clear_notice(@Req() req: Request) {
+    const user = req.user as IUser;
+    await this.userService.clear_notice(user.id);
   }
 
   @Post('change-settings')

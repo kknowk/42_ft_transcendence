@@ -1,5 +1,6 @@
 <script lang="ts">
   import { browser } from "$app/environment";
+  import { page } from "$app/stores";
   import { onDestroy, onMount } from "svelte";
 
   let intervalId: number | null = null;
@@ -15,8 +16,13 @@
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     intervalId = setInterval(periodicFunc, 300000) as any as number;
+    if ($page.url.pathname === "/home/notice") {
+      noticeCount = 0;
+    } else {
+      await periodicFunc();
+    }
   });
 
   onDestroy(() => {
@@ -27,7 +33,7 @@
 </script>
 
 <details>
-  <summary>☰</summary>
+  <summary data-count={noticeCount}>☰</summary>
   <nav>
     <menu>
       <ul>
@@ -60,16 +66,26 @@
 </details>
 
 <style>
-  .notice[data-count="0"]::after {
-    display: none;
-  }
-
   .notice::after {
     content: " (" attr(data-count) ")";
     color: deeppink;
   }
 
+  .notice[data-count="0"]::after {
+    display: none;
+  }
+
   details {
+    & summary[data-count]::after {
+      display: block;
+      content: " (" attr(data-count) ")";
+      color: deeppink;
+    }
+
+    & summary[data-count="0"]::after {
+      display: none;
+    }
+
     & summary {
       cursor: pointer;
       list-style: none;
@@ -78,22 +94,11 @@
 
     padding: 0.5em;
     background-color: honeydew;
-    min-height: 100vh;
+    min-height: max(100%, 100vh);
 
     & menu {
-      margin-block-start: unset;
-      margin-block-end: unset;
-      margin-inline-start: unset;
-      margin-inline-end: unset;
-      padding-inline-start: unset;
-
       & ul {
         list-style: none;
-        margin-block-start: unset;
-        margin-block-end: unset;
-        margin-inline-start: unset;
-        margin-inline-end: unset;
-        padding-inline-start: unset;
 
         & li {
           margin-top: 0.5em;
