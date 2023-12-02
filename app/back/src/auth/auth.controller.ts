@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from './auth.service.js';
+import { AuthService, JwtPayload } from './auth.service.js';
 import type { Response, Request } from 'express';
 import { IUser, UserActivityKind } from '../user/user.entity.js';
 import { UserService } from '../user/user.service.js';
@@ -33,7 +33,7 @@ export class AuthController {
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     if (req.cookies?.jwt) {
-      const decoded = this.jwtService.decode(req.cookies.jwt, { json: true });
+      const decoded = this.jwtService.decode(req.cookies.jwt, { json: true }) as JwtPayload;
       if (
         typeof decoded !== 'string' &&
         'sub' in decoded &&
@@ -60,9 +60,8 @@ export class AuthController {
       return;
     }
     const user = req.user as IUser;
-    const access_token = await this.authSerivce.issue_jwt(user);
-    if (access_token) {
-      res.cookie('jwt', access_token, this.authSerivce.jwt_cookie_options);
+    if (!(await this.authSerivce.update_jwt(user, res))) {
+      return;
     }
     if (
       user.two_factor_authentication_required &&
@@ -86,11 +85,7 @@ export class AuthController {
       user_id_number,
       displayName,
     );
-    const access_token = await this.authSerivce.issue_jwt(user);
-    if (access_token) {
-      res.cookie('jwt', access_token, this.authSerivce.jwt_cookie_options);
-    }
-    res.redirect(307, '/home');
+    await this.authSerivce.update_jwt(user, res);
   }
 
   @Post('send-mail')
@@ -153,12 +148,6 @@ export class AuthController {
       res.status(400);
       return;
     }
-    const access_token = await this.authSerivce.issue_jwt(user);
-    if (access_token) {
-      res.cookie('jwt', access_token, this.authSerivce.jwt_cookie_options);
-      res.status(200);
-      return;
-    }
-    res.status(500);
+    await this.authSerivce.update_jwt(user, res);
   }
 }

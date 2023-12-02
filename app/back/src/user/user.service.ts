@@ -109,7 +109,7 @@ export class UserService {
   public async update_user_activity(
     id: number,
     kind?: UserActivityKind,
-  ): Promise<void> {
+  ): Promise<number> {
     const time = this.#calc_time();
     if (kind == null) {
       await this.userRepository.update(
@@ -122,6 +122,7 @@ export class UserService {
         { last_activity_timestamp: time, activity_kind: kind },
       );
     }
+    return time;
   }
 
   public async get_friends(
