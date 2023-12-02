@@ -31,9 +31,7 @@
 
     let user_name: string = "";
 
-    async function searchByName(
-        user_name: string,
-    ): Promise<IUserWithRelationship[]> {
+    async function searchByName(): Promise<IUserWithRelationship[]> {
         if (user_name.length === 0) return [];
         console.log(user_name);
         const response = await fetch(
@@ -42,7 +40,7 @@
         return await response.json();
     }
 
-    $: users_promise = searchByName(user_name);
+    $: users_promise = searchByName();
 
     function callbackInvalidate() {
         user_name = "";
