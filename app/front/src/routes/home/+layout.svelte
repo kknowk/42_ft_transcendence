@@ -19,6 +19,6 @@
   }
 
   .grid-main {
-    padding: 1vh;
+    padding-top: 1vh;
   }
 </style>
