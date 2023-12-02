@@ -60,22 +60,6 @@
 </details>
 
 <style>
-  form {
-    display: inline;
-  }
-
-  input {
-    background: none;
-    color: blue;
-    border: none;
-    padding: 0;
-    margin: 0;
-    text-decoration: underline;
-    font-family: inherit;
-    font-size: inherit;
-    cursor: pointer;
-  }
-
   .notice[data-count="0"]::after {
     display: none;
   }
@@ -83,16 +67,6 @@
   .notice::after {
     content: " (" attr(data-count) ")";
     color: deeppink;
-  }
-
-  ul {
-    list-style: none;
-
-    & li {
-      margin-top: 0.5em;
-      margin-bottom: 0.5em;
-      padding-right: 1em;
-    }
   }
 
   details {
@@ -105,25 +79,48 @@
     padding: 0.5em;
     background-color: honeydew;
     min-height: 100vh;
-  }
 
-  menu {
-    margin-block-start: unset;
-    margin-block-end: unset;
-    margin-inline-start: unset;
-    margin-inline-end: unset;
-    padding-inline-start: unset;
-  }
+    & menu {
+      margin-block-start: unset;
+      margin-block-end: unset;
+      margin-inline-start: unset;
+      margin-inline-end: unset;
+      padding-inline-start: unset;
 
-  ul {
-    margin-block-start: unset;
-    margin-block-end: unset;
-    margin-inline-start: unset;
-    margin-inline-end: unset;
-    padding-inline-start: unset;
-  }
+      & ul {
+        list-style: none;
+        margin-block-start: unset;
+        margin-block-end: unset;
+        margin-inline-start: unset;
+        margin-inline-end: unset;
+        padding-inline-start: unset;
 
-  a {
-    text-decoration: none;
+        & li {
+          margin-top: 0.5em;
+          margin-bottom: 0.5em;
+
+          & a {
+            text-decoration: none;
+            padding-right: 1em;
+            display: block;
+          }
+
+          & form {
+            & input {
+              background: none;
+              color: blue;
+              border: none;
+              padding: 0;
+              margin: 0;
+              font-family: inherit;
+              font-size: inherit;
+              cursor: pointer;
+              text-align: left;
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
   }
 </style>
