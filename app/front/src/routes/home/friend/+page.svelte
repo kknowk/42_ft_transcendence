@@ -38,3 +38,9 @@
     </li>
   {/each}
 </ul>
+
+<style>
+  ul {
+    padding-top: 1ex;
+  }
+</style>

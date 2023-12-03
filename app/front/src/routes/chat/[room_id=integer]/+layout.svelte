@@ -44,7 +44,7 @@
     </menu>
     {#if data.members}
       <details class="member-list">
-        <summary>☰</summary>
+        <summary>Members</summary>
         <div>
           {#if administrators.length > 0}
             <p>Administrators</p>
@@ -102,22 +102,28 @@
     grid-template-columns: 1fr auto;
     grid-template-rows: auto 1fr;
     min-height: max(100%, 100vh);
-    padding-left: 0.5em;
 
     & .grid-main {
       padding-top: 1vh;
       grid-row: 1 / 3;
       grid-column: 1 / 2;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
     }
 
     & .grid-menu {
       grid-row: 1 / 2;
       grid-column: 2 / 3;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
 
       & a {
         display: block;
         width: 100%;
         text-decoration: unset;
+        padding-top: 1ex;
+        padding-bottom: 1ex;
+        text-align: center;
 
         & + a {
           border-top: solid;
@@ -129,18 +135,22 @@
       grid-column: 2 / 3;
       grid-row: 2 / 3;
       background-color: cornsilk;
+      padding: 0.5em;
+      padding-top: 0.3em;
 
       & summary {
         text-align: right;
         cursor: pointer;
         list-style: none;
         font-size: larger;
-        padding: 0.5em;
-        padding-top: 0.3em;
       }
 
-      & summary::after {
-        content: " Members";
+      & summary::before {
+        content: "☰ ";
+      }
+
+      & p {
+        text-align: center;
       }
 
       & ul {

@@ -35,7 +35,11 @@
 </script>
 
 <main>
-  <button on:click={clearNoticeFunc}>Clear</button>
+  {#if data.notices.length !== 0}
+    <button on:click={clearNoticeFunc}>Clear</button>
+  {:else}
+    <h1>No Notice is Available</h1>
+  {/if}
   <ul>
     {#each data.notices as notice}
       <li id="notice-{notice.id.toString()}">
@@ -49,8 +53,12 @@
 </main>
 
 <style>
-  li {
-    list-style: none;
-    padding: 0.5em;
+  main {
+    padding-top: 1ex;
+
+    & li {
+      list-style: none;
+      padding-top: 1ex;
+    }
   }
 </style>

@@ -62,41 +62,47 @@
   <title>{data.user?.displayName}'s Home</title>
 </svelte:head>
 
-{#if isMatching}
-  <p>マッチング中です。しばらくお待ちください...</p>
-  <img src="/loli.jpg" alt="uisama" />
-{:else if matchFound}
-  <p>マッチが見つかりました！ゲームがまもなく開始します。</p>
-  <img src="/naki.jpeg" alt="uisaman" />
-{:else}
-  <button on:click={startMatchmaking}>マッチメイキングを開始</button>
-{/if}
+<main>
+  {#if isMatching}
+    <p>マッチング中です。しばらくお待ちください...</p>
+    <img src="/loli.jpg" alt="uisama" />
+  {:else if matchFound}
+    <p>マッチが見つかりました！ゲームがまもなく開始します。</p>
+    <img src="/naki.jpeg" alt="uisaman" />
+  {:else}
+    <button on:click={startMatchmaking}>マッチメイキングを開始</button>
+  {/if}
 
-<search>
-  <label>
-    Search by user name:
-    <input type="search" bind:value={user_name} />
-  </label>
-</search>
-<ul>
-  {#await users_promise then users}
-    {#each users as user}
-      {#if user.relationship !== -1}
-        <li>
-          <a href="/user/{user.id}">{user.displayName}</a>
-          <a href="/home/direct-message/{user.id}"> Send Direct Message </a>
-          <SetRelationshipButtons
-            user_id={user.id}
-            user_relationship={user.relationship}
-            callback={callbackInvalidate}
-          />
-        </li>
-      {/if}
-    {/each}
-  {/await}
-</ul>
+  <search>
+    <label>
+      Search by user name:
+      <input type="search" bind:value={user_name} />
+    </label>
+  </search>
+  <ul>
+    {#await users_promise then users}
+      {#each users as user}
+        {#if user.relationship !== -1}
+          <li>
+            <a href="/user/{user.id}">{user.displayName}</a>
+            <a href="/home/direct-message/{user.id}"> Send Direct Message </a>
+            <SetRelationshipButtons
+              user_id={user.id}
+              user_relationship={user.relationship}
+              callback={callbackInvalidate}
+            />
+          </li>
+        {/if}
+      {/each}
+    {/await}
+  </ul>
+</main>
 
 <style>
+  main {
+    margin-top: 1ex;
+  }
+  
   search {
     margin-top: 1em;
   }

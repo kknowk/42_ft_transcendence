@@ -32,7 +32,7 @@
   });
 </script>
 
-<details>
+<details open>
   <summary data-count={noticeCount}>☰</summary>
   <nav>
     <menu>
@@ -86,6 +86,10 @@
       display: none;
     }
 
+    &[open] summary::after {
+      display: none;
+    }
+
     & summary {
       cursor: pointer;
       list-style: none;
@@ -93,11 +97,11 @@
     }
 
     padding: 0.5em;
+    padding-top: 1ex;
     background-color: honeydew;
     min-height: 100vh;
     position: sticky;
     top: 0;
-    
 
     & menu {
       & ul {

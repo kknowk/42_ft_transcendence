@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { invalidate, invalidateAll } from "$app/navigation";
+  import { invalidateAll } from "$app/navigation";
   import type { PageData } from "./$types";
   export let data: PageData;
 
@@ -45,42 +45,40 @@
   }
 </script>
 
-<form on:submit={submitFunction}>
-  <input type="reset" value="Reset" />
+<form on:submit={submitFunction} class="grid-container">
+  <label for="user-name"> Name: </label>
+  <input id="user-name" type="text" name="user-name" value={data.user.displayName} />
+  <label for="user-email"> Email: </label>
+  <input id="user-email" type="email" name="user-email" value={data.email ?? ""} />
+  <label for="2fa">2 Factor Auth:</label>
+  <label class="toggle-switch">
+    <input
+      id="2fa"
+      type="checkbox"
+      name="user-2fa"
+      checked={data.user.two_factor_authentication_required}
+    />
+  </label>
   <input type="submit" value="Change" />
-  <div>
-    <label>
-      Name:
-      <input type="text" name="user-name" value={data.user.displayName} />
-    </label>
-  </div>
-  <div>
-    <label>
-      Email:
-      <input type="email" name="user-email" value={data.email ?? ""} />
-    </label>
-  </div>
-  <div class="toggle-switch">
-    <label for="2fa">2 Factor Auth:</label>
-    <label class="toggle-switch">
-      <input
-        id="2fa"
-        type="checkbox"
-        name="user-2fa"
-        checked={data.user.two_factor_authentication_required}
-      />
-    </label>
-  </div>
 </form>
 
 <style>
-  div {
-    margin-top: 0.5em;
+  form {
+    margin-top: 1ex;
     margin-bottom: 0.5em;
+  }
 
-    &.toggle-switch {
-      display: flex;
-      align-items: center;
+  .grid-container {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+
+    & * {
+      margin: 0.5em;
+    }
+
+    & input[type="submit"] {
+      grid-column: 1 / 3;
     }
   }
 

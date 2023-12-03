@@ -11,6 +11,29 @@
   });
 </script>
 
-You are not logged in.
+<div>
+  <h1>Pong Online</h1>
+</div>
+<div>
+  <h2>You are not logged in.</h2>
+</div>
+<div>
+  <a href="/authentication">Login</a>
+</div>
 
-<a href="/authentication">Login</a>
+<style>
+  div {
+    width: 100vw;
+
+    & * {
+      text-align: center;
+      width: 100%;
+    }
+
+    & a {
+      display: block;
+      text-decoration: none;
+      font-size: xx-large;
+    }
+  }
+</style>

@@ -181,6 +181,11 @@
     grid-template-columns: 1fr auto;
     min-height: max(100%, 100vh);
 
+    & .grid-main {
+      padding-top: 1ex;
+      padding-right: 0.5em;
+    }
+
     & .grid-nav {
       position: sticky;
       top: 0;

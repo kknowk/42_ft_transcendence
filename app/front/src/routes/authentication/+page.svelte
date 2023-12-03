@@ -67,3 +67,10 @@
 <h1 style="display: {recommendation ? 'unset' : 'none'};">You should resend challenge code.</h1>
 
 <button on:click={sendMail}>Re-send Challenge Code</button>
+
+<style>
+  form {
+    padding: 0.5em;
+    padding-top: 1ex;
+  }
+</style>

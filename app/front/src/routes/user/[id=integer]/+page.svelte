@@ -27,7 +27,7 @@
     <UserMenu />
   </div>
   <main class="grid-main">
-    <p>Name: <span>{data.user.displayName}</span></p>
+    <span>Name: {data.user.displayName}</span>
     <SetRelationshipButtons
       user_id={data.user.id}
       user_relationship={data.relationship}
@@ -44,7 +44,7 @@
   }
 
   .grid-main {
-    padding-top: 1vh;
+    padding-top: 1ex;
     padding-left: 0.5em;
   }
 </style>
