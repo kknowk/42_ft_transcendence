@@ -24,14 +24,17 @@ export class GameMatchingService {
         return this.lastinviteGameRoomId;
     }
 
-    async inviteMatchMaking(requesterId: number, requestedIds: number[]): Promise<{gameRoomId: number}> {
-        
+    async inviteMatchMaking(requesterId: number, requestedIds: number[]): Promise<{ gameRoomId: number }> {
+
         const gameRoomId = this.generateinviteGameRoomId();
 
         return { gameRoomId };
     }
 
     async startMatchmaking(playerId: number) {
+        // 既存の待機中のリクエストを検索し、更新する
+        await this.updateExistingWaitingRequests(playerId);
+
         // マッチを探す
         const existingMatch = await this.findMatch(playerId);
         const gameRoomId = existingMatch ? existingMatch.gameRoomId : this.generateGameRoomId();
@@ -91,5 +94,15 @@ export class GameMatchingService {
         }
 
         return null;
+    }
+
+    private async updateExistingWaitingRequests(playerId: number) {
+        // ステータスが 'waiting' で、同じプレイヤーIDのリクエストを検索
+        await this.gameMatchingRequestRepository.update({
+            requester_id: playerId,
+            status: 'waiting'
+        }, {
+            status: 'matched' // ステータスを 'matched' に更新
+        });
     }
 }
