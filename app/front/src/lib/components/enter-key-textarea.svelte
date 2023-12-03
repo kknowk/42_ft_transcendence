@@ -41,10 +41,23 @@
   }
 
   form {
-    
+    & textarea {
+      width: 100%;
+      height: 4lh;
+    }
 
     & button {
-      height: max-content;
+      display: block;
+      color: unset;
+      text-align: center;
+      align-items: flex-start;
+      cursor: pointer;
+      background-color: unset;
+      margin: unset;
+      padding: unset;
+      border: unset;
+      width: 100%;
+      background-color: lavenderblush;
     }
   }
 </style>

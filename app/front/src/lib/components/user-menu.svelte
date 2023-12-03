@@ -94,7 +94,10 @@
 
     padding: 0.5em;
     background-color: honeydew;
-    min-height: max(100%, 100vh);
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    
 
     & menu {
       & ul {
