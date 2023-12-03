@@ -227,6 +227,5 @@
   .message + .message {
     border-top: solid;
     border-top-color: slategray;
-    border-top-width: 4px;
   }
 </style>
