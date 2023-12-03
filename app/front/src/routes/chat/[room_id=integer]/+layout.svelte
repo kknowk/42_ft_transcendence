@@ -2,6 +2,7 @@
   import type { PageData } from "./$types";
   import { page } from "$app/stores";
   import SetRelationshipButtons from "$lib/components/set-relationship-buttons.svelte";
+  import { goto } from "$app/navigation";
 
   export let data: PageData;
   const administrators: number[] = [];
@@ -21,6 +22,31 @@
       }
     }
   })();
+
+  async function inviteFunc() {
+    if (data.members === null) {
+      return;
+    }
+    const invitees = [] as number[];
+    for (const id of data.members.keys()) {
+      if (id === data.user.id) {
+        continue;
+      }
+      const user = data.users.get(id);
+      if (user == null || user.relationship === -1) {
+        continue;
+      }
+      invitees.push(id);
+    }
+    const response = await fetch("/api/matchmaking/invite", {
+      method: "POST",
+      body: JSON.stringify(invitees),
+    });
+    if (response.ok) {
+      const gameRoomId = (await response.json()) as number;
+      await goto(`/game_pong/${gameRoomId}`, { invalidateAll: true });
+    }
+  }
 </script>
 
 <div class="grid-container">
@@ -29,8 +55,9 @@
       <slot />
     </div>
     <menu class="grid-menu">
+      <button on:click={inviteFunc}>Invite to New Game</button>
       {#if data.room.kind === 0}
-        <a href="/chat/{data.room.id}/invite">Invite</a>
+        <a href="/chat/{data.room.id}/invite">Invite New Member</a>
       {/if}
       <a href="/chat/{data.room.id}/kick">Kick</a>
       <a href="/chat/{data.room.id}/mute">Mute</a>
@@ -117,6 +144,37 @@
       padding-left: 0.5em;
       padding-right: 0.5em;
 
+      & button {
+        display: block;
+        text-align: center;
+        align-items: flex-start;
+        cursor: pointer;
+        background-color: unset;
+        margin: unset;
+        padding: unset;
+        border: unset;
+        width: 100%;
+        padding-top: 1ex;
+        padding-bottom: 1ex;
+        color: blue;
+        font-style: unset;
+        font-variant-ligatures: unset;
+        font-variant-caps: unset;
+        font-variant-numeric: unset;
+        font-variant-east-asian: unset;
+        font-variant-alternates: unset;
+        font-variant-position: unset;
+        font-weight: unset;
+        font-stretch: unset;
+        font-size: unset;
+        font-family: unset;
+        font-optical-sizing: unset;
+        font-kerning: unset;
+        font-feature-settings: unset;
+        font-variation-settings: unset;
+        text-rendering: unset;
+      }
+
       & a {
         display: block;
         width: 100%;
@@ -124,22 +182,21 @@
         padding-top: 1ex;
         padding-bottom: 1ex;
         text-align: center;
-
-        & + a {
-          border-top: solid;
-        }
+        border-top: solid;
+        border-color: mediumslateblue;
+        color: blue;
       }
     }
 
     & details.member-list {
       grid-column: 2 / 3;
       grid-row: 2 / 3;
-      background-color: cornsilk;
+      background-color: blanchedalmond;
       padding: 0.5em;
       padding-top: 0.3em;
 
       & summary {
-        text-align: right;
+        text-align: center;
         cursor: pointer;
         list-style: none;
         font-size: larger;
@@ -160,6 +217,7 @@
           & a {
             display: block;
             text-decoration: none;
+            text-align: center;
           }
         }
       }

@@ -132,6 +132,17 @@
     logs == null ||
     logs.length === 0 ||
     logs[logs.length - 1].id === data.room.start_inclusive_log_id;
+
+  async function inviteFunc() {
+    const response = await fetch("/api/matchmaking/invite", {
+      method: "POST",
+      body: JSON.stringify([data.counterpart.id]),
+    });
+    if (response.ok) {
+      const gameRoomId = (await response.json()) as number;
+      await goto(`/game_pong/${gameRoomId}`, { invalidateAll: true });
+    }
+  }
 </script>
 
 <svelte:head>
@@ -166,7 +177,7 @@
     </main>
   </div>
   <menu class="grid-nav">
-    <button>Invite Game</button>
+    <button on:click={inviteFunc}>Invite to New Game</button>
     <SetRelationshipButtons
       user_id={data.counterpart.id}
       user_relationship={1}

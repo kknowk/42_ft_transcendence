@@ -57,6 +57,8 @@
   .grid-container {
     display: grid;
     grid-template-columns: 1fr auto;
+    height: 100%;
+    width: 100%;
 
     & .grid-main {
       padding-top: 1ex;
@@ -67,6 +69,11 @@
     & details {
       padding: 0.5em;
       padding-top: 1ex;
+      background-color: blanchedalmond;
+      min-height: 100%;
+      position: sticky;
+      top: 0;
+
       & summary {
         list-style: none;
         font-size: larger;
