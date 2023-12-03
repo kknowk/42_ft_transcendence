@@ -192,15 +192,17 @@
   {#if logs}
     <EnterKeyTextarea sendMessageCallback={sendMessage} />
     {#each logs as log}
-      <Message
-        message_id={log.id}
-        content={log.content}
-        user_id={log.member_id}
-        user_name={getDisplayName(log.member_id)}
-        utcSeconds={log.date}
-        {now}
-        is_html={log.is_html}
-      />
+      <div class="message">
+        <Message
+          message_id={log.id}
+          content={log.content}
+          user_id={log.member_id}
+          user_name={getDisplayName(log.member_id)}
+          utcSeconds={log.date}
+          {now}
+          is_html={log.is_html}
+        />
+      </div>
     {/each}
     <InfiniteScrolling disabled={infiniteDisabled} callback={getHistory} />
   {:else if data.room.kind === 0}
@@ -223,3 +225,15 @@
     </div>
   {/if}
 </main>
+
+<style>
+  .message {
+    padding-top: 1ex;
+    padding-bottom: 1ex;
+
+    & + .message {
+      border-top: solid;
+      border-top-color: slategray;
+    }
+  }
+</style>
