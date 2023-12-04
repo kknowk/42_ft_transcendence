@@ -109,7 +109,7 @@ export class ApiChatRoomController {
   async send_message(
     @Req() req: Request,
     @Param('room_id', ParseIntPipe) room_id: number,
-    @Body() body: string
+    @Body() body: string,
   ) {
     if (body == null || body.length === 0) {
       throw new BadRequestException('body is empty.');
@@ -233,9 +233,18 @@ export class ApiChatRoomController {
     );
   }
 
-  @Post('invite-game/:room_id')
-  async invite_game(
-    @Req() req: Request,
-    @Param('room_id', ParseIntPipe) room_id: number,
-  ) {}
+  @Get('not-member-rooms')
+  async not_member_rooms(@Req() req: Request) {
+    const user = req.user as IUser;
+    const params = new URL(req.url, `https://${req.headers.host}`).searchParams;
+    const rangeRequest = createIRangeRequestWithUserFromURLSearchParams(
+      user.id,
+      params,
+    );
+    if (rangeRequest === null) {
+      throw new BadRequestException('range request is invalid.');
+    }
+    const rooms = await this.chatRoomService.get_not_member_rooms(rangeRequest);
+    return rooms;
+  }
 }

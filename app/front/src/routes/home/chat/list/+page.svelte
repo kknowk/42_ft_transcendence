@@ -6,6 +6,7 @@
 
   export let data: PageData;
   let rooms = data.rooms;
+  let notMemberRooms = data.notMemberRooms;
 
   async function createNewChatRoom(
     _: HTMLButtonElement,
@@ -40,8 +41,15 @@
 </svelte:head>
 
 <div class="grid-container">
-  <ul class="grid-main">
+  <ul class="grid-main room-mine">
     {#each rooms as room}
+      <li>
+        <a href="/chat/{room.id}">{room.name}</a>
+      </li>
+    {/each}
+  </ul>
+  <ul class="grid-main room-public">
+    {#each notMemberRooms as room}
       <li>
         <a href="/chat/{room.id}">{room.name}</a>
       </li>
@@ -57,13 +65,29 @@
   .grid-container {
     display: grid;
     grid-template-columns: 1fr auto;
+    grid-template-rows: 1fr 1fr;
     height: 100%;
     width: 100%;
 
-    & .grid-main {
+    & ul.grid-main {
       padding-top: 1ex;
       padding-left: 0.5em;
       padding-right: 0.5em;
+      list-style: none;
+      grid-column: 1 / 2;
+
+      & li {
+        padding-top: 1ex;
+        padding-bottom: 1ex;
+      }
+
+      &.room-mine::before {
+        content: "Rooms you are belonging to";
+      }
+
+      &.room-public::before {
+        content: "Public Rooms";
+      }
     }
 
     & details {
@@ -73,6 +97,8 @@
       min-height: 100%;
       position: sticky;
       top: 0;
+      grid-column: 2 / 3;
+      grid-row: 1 / 3;
 
       & summary {
         list-style: none;

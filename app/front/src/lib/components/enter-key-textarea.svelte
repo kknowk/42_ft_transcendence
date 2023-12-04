@@ -8,9 +8,16 @@
   ) => Promise<void> | void;
 
   async function keydownHook(event: KeyboardEvent) {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (event.key !== "Enter") {
+      return;
+    }
+    if (!event.shiftKey) {
       event.preventDefault();
       button.click();
+    } else {
+      const currentHeight = area.style.height ?? "4lh";
+      const lineHeight = Number.parseInt(currentHeight.slice(0, currentHeight.length - 2)) + 1;
+      area.style.height = `${lineHeight}lh`;
     }
   }
 

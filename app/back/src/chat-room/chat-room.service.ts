@@ -38,7 +38,7 @@ export class ChatRoomService {
   ) {}
 
   async get_belonging_rooms(
-    request: IRangeRequestWithUserId,
+    rangeRequest: IRangeRequestWithUserId,
   ): Promise<IChatRoom[]> {
     /*
 		WITH "memberships" ("id") AS (SELECT "room_id" FROM "ChatRoomMembership" WHERE "member_id"=$requester_id AND "kind" >= 0)
@@ -47,7 +47,7 @@ export class ChatRoomService {
     const memberships = this.membershipRepository
       .createQueryBuilder()
       .select('room_id')
-      .where('member_id = :id', { id: request.user_id })
+      .where('member_id = :id', { id: rangeRequest.user_id })
       .andWhere('kind >= 0');
     let query = this.roomRepository
       .createQueryBuilder('cr')
@@ -58,22 +58,23 @@ export class ChatRoomService {
       .addSelect('cr.owner_id', 'owner_id')
       .addSelect('cr.start_inclusive_log_id', 'start_inclusive_log_id')
       .innerJoin('memberships', 'm', 'cr.id=m.id');
-    query = addWhereCondition(request, query, 'cr.id', true);
-    query = addOrderAndLimit(request, query, 'cr.id');
+    query = addWhereCondition(rangeRequest, query, 'cr.id', true);
+    query = addOrderAndLimit(rangeRequest, query, 'cr.id');
     const result = await query.getRawMany<IChatRoom>();
     return result;
   }
 
-  async get_all_rooms(request: IRangeRequestWithUserId): Promise<IChatRoom[]> {
-    const banned_memberships = this.membershipRepository
+  async get_not_member_rooms(
+    rangeRequest: IRangeRequestWithUserId,
+  ): Promise<IChatRoom[]> {
+    const memberships = this.membershipRepository
       .createQueryBuilder()
       .select('room_id')
-      .where('member_id = :id', { id: request.user_id })
-      .andWhere('kind < 0');
+      .where('member_id = :id', { id: rangeRequest.user_id });
     let query = this.roomRepository
       .createQueryBuilder('cr')
       .addCommonTableExpression(
-        banned_memberships,
+        memberships,
         'memberships',
         this.#cteOptions_id,
       )
@@ -83,10 +84,10 @@ export class ChatRoomService {
       .addSelect('cr.owner_id', 'owner_id')
       .addSelect('cr.start_inclusive_log_id', 'start_inclusive_log_id')
       .where(
-        'NOT EXISTS (SELECT 1 FROM "memberships" WHERE "memberships"."id"="cr"."id")',
+        'cr.kind>0 AND NOT EXISTS (SELECT 1 FROM "memberships" WHERE "memberships"."id"="cr"."id")',
       );
-    query = addWhereCondition(request, query, 'cr.id', true);
-    query = addOrderAndLimit(request, query, 'cr.id');
+    query = addWhereCondition(rangeRequest, query, 'cr.id', true);
+    query = addOrderAndLimit(rangeRequest, query, 'cr.id');
     const result = await query.getRawMany<IChatRoom>();
     return result;
   }

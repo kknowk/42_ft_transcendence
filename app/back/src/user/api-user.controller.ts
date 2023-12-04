@@ -144,7 +144,10 @@ export class ApiUserController {
       rangeRequest.start_exclusive > user.notice_read_id
         ? rangeRequest.start_exclusive
         : user.notice_read_id;
-    const answer = await this.userService.get_notice(rangeRequest);
+    const [answer, maxId] = await this.userService.get_notice(rangeRequest);
+    if (maxId > user.notice_read_id) {
+      user.notice_read_id = maxId;
+    }
     return answer;
   }
 

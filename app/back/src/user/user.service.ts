@@ -392,7 +392,16 @@ export class UserService {
     await query.execute();
   }
 
-  public async get_notice(rangeRequest: IRangeRequestWithUserId) {
+  public async get_notice(rangeRequest: IRangeRequestWithUserId): Promise<
+    [
+      {
+        id: number;
+        content: string;
+        date: number;
+      }[],
+      number,
+    ]
+  > {
     let query = this.noticeRepository
       .createQueryBuilder()
       .select('id', 'id')
@@ -418,15 +427,18 @@ export class UserService {
       .set({
         notice_read_id: maxId,
       })
-      .where('id=:id', { id: rangeRequest.user_id });
+      .where('id=:id AND :maxId > notice_read_id', {
+        id: rangeRequest.user_id,
+        maxId,
+      });
     await updateQuery.execute();
-    return result;
+    return [result, maxId];
   }
 
   public async get_notice_count(rangeRequest: IRangeRequestWithUserId) {
     let query = this.noticeRepository
       .createQueryBuilder()
-      .select('id')
+      .select('1')
       .where('user_id=:user_id', { user_id: rangeRequest.user_id });
     query = addWhereCondition(rangeRequest, query, 'id', true);
     query = addOrderAndLimit(rangeRequest, query, 'id');

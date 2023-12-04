@@ -20,6 +20,12 @@
 
 <style>
   ul {
+    list-style: none;
     padding-top: 1ex;
+
+    & li {
+      padding-top: 1ex;
+      padding-bottom: 1ex;
+    }
   }
 </style>

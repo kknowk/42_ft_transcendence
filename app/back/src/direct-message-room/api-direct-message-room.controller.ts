@@ -119,10 +119,4 @@ export class ApiDirectMessageRoomController {
     }
     return await this.directMessageRoomService.get_logs(room_id, rangeRequest);
   }
-
-  @Post('invite-game/:room_id')
-  async invite_game(
-    @Req() req: Request,
-    @Param('room_id', ParseIntPipe) room_id: number,
-  ) {}
 }

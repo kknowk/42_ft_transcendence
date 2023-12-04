@@ -1,9 +1,9 @@
 <script lang="ts">
   import { browser } from "$app/environment";
+  import { afterNavigate } from "$app/navigation";
   import { page } from "$app/stores";
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
 
-  let intervalId: number | null = null;
   let noticeCount: number = 0;
 
   async function periodicFunc() {
@@ -16,18 +16,30 @@
     }
   }
 
-  onMount(async () => {
-    intervalId = setInterval(periodicFunc, 300000) as any as number;
+  onMount(() => {
+    const intervalId = setInterval(periodicFunc, 300000);
     if ($page.url.pathname === "/home/notice") {
       noticeCount = 0;
     } else {
-      await periodicFunc();
+      periodicFunc();
     }
+    return () => {
+      if (browser) {
+        clearInterval(intervalId);
+      }
+    };
   });
 
-  onDestroy(() => {
-    if (browser && typeof intervalId === "number") {
-      clearInterval(intervalId);
+  afterNavigate((navigation) => {
+    const target = navigation.to;
+    if (target == null) {
+      return;
+    }
+    console.log("called after navigate: " + target.url.pathname);
+    if (target.url.pathname === "/home/notice") {
+      noticeCount = 0;
+    } else {
+      periodicFunc();
     }
   });
 </script>
