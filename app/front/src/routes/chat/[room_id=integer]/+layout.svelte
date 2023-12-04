@@ -43,7 +43,7 @@
       body: JSON.stringify(invitees),
     });
     if (response.ok) {
-      const gameRoomId = (await response.json()) as number;
+      const { gameRoomId } = await response.json();
       await goto(`/game_pong/${gameRoomId}`, { invalidateAll: true });
     }
   }
