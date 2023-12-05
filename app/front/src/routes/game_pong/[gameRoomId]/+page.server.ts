@@ -15,10 +15,19 @@ export async function load(ev: PageServerLoadEvent) {
   }
 
   const user_id = parent.user.id;
+  console.log("Game Room Id: " + ev.params.gameRoomId);
   const gameRoomId = parseInt(ev.params.gameRoomId);
   const isAllowed = await services.gameMatchingService.checkUserAccessToGameRoom(user_id, gameRoomId);
+  
+  if (isAllowed)
+    return {user_id};
 
-  if (!isAllowed) {
+
+  const isgroupAllowed = await services.gameMatchingService.checkGroupUserAccessToGameRoom(user_id, gameRoomId);
+  if (isgroupAllowed)
+    return {user_id};
+
+  else {
     throw error(403, "You are not authorized to access this game room");
   }
 
