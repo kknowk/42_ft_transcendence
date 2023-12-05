@@ -504,4 +504,70 @@ export class UserService {
     const compareResult = hashed === result.two_factor_temp;
     return compareResult;
   }
+
+  public async get_game_result_counts(user_id: number) {
+    const win_query = this.gameLogRepository
+      .createQueryBuilder()
+      .select('count(distinct date)', 'count')
+      .where('winner_id=:user_id', { user_id });
+    const lose_query = this.gameLogRepository
+      .createQueryBuilder()
+      .select('count(distinct date)', 'count')
+      .where('loser_id=:user_id', { user_id });
+    const [win, lose] = await Promise.all([
+      win_query.getRawOne() as Promise<{ count: number }>,
+      lose_query.getRawOne() as Promise<{ count: number }>,
+    ]);
+    return {
+      win: win.count,
+      lose: lose.count,
+    };
+  }
+
+  public async get_game_logs(
+    rangeRequest: IRangeRequestWithUserId,
+  ): Promise<{ id: number; date: number; name: string; win: boolean }[]> {
+    rangeRequest.is_ascending_order = undefined;
+    let win_query = this.gameLogRepository
+      .createQueryBuilder('l')
+      .addSelect('l.loser_id', 'id')
+      .addSelect('l.date', 'date')
+      .addSelect('u.displayName', 'name')
+      .distinctOn(['l.date'])
+      .innerJoin(User, 'u', 'u.id=l.loser_id')
+      .where('l.winner_id=:user_id', { user_id: rangeRequest.user_id });
+    win_query = addWhereCondition(rangeRequest, win_query, 'date', true);
+    win_query = addOrderAndLimit(rangeRequest, win_query, 'date');
+    let lose_query = this.gameLogRepository
+      .createQueryBuilder('l')
+      .select('l.winner_id', 'id')
+      .addSelect('l.date', 'date')
+      .addSelect('u.displayName', 'name')
+      .distinctOn(['l.date'])
+      .innerJoin(User, 'u', 'u.id=l.winner_id')
+      .where('l.loser_id=:user_id', { user_id: rangeRequest.user_id });
+    lose_query = addWhereCondition(rangeRequest, lose_query, 'date', true);
+    lose_query = addOrderAndLimit(rangeRequest, lose_query, 'date');
+    const wins: { id: number; date: number; name: string; win: boolean }[] =
+      await win_query.getRawMany();
+    const loses: { id: number; date: number; name: string; win: boolean }[] =
+      await lose_query.getRawMany();
+    for (const iterator of wins) {
+      iterator.win = true;
+    }
+    for (const iterator of loses) {
+      iterator.win = false;
+    }
+    wins.push(...loses);
+    wins.sort((a, b) => {
+      if (a.date < b.date) {
+        return 1;
+      } else if (a.date === b.date) {
+        return 0;
+      } else {
+        return -1;
+      }
+    });
+    return wins;
+  }
 }

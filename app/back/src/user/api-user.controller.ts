@@ -12,6 +12,7 @@ import {
   UseInterceptors,
   Body,
   UploadedFiles,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -233,5 +234,52 @@ export class ApiUserController {
     if (promises.length > 0) {
       await Promise.all(promises);
     }
+  }
+
+  @Get('game-result-counts/:user_id')
+  async get_game_result_counts(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) user_id: number,
+  ) {
+    const user = req.user as IUser;
+    if (!(await this.userService.get_existence(user_id))) {
+      throw new NotFoundException();
+    }
+    const relationship = await this.userService.get_lowest_relationship(
+      user.id,
+      user_id,
+    );
+    if (relationship === UserRelationshipKind.banned) {
+      throw new UnauthorizedException();
+    }
+    const result = await this.userService.get_game_result_counts(user_id);
+    return result;
+  }
+
+  @Get('game-logs/:user_id')
+  async get_game_logs(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) user_id: number,
+  ) {
+    const user = req.user as IUser;
+    if (!(await this.userService.get_existence(user_id))) {
+      throw new NotFoundException();
+    }
+    const relationship = await this.userService.get_lowest_relationship(
+      user.id,
+      user_id,
+    );
+    if (relationship === UserRelationshipKind.banned) {
+      throw new UnauthorizedException();
+    }
+    const url = new URL(req.url, `https://${req.headers.host}`);
+    const rangeRequest = createIRangeRequestWithUserFromURLSearchParams(
+      user_id,
+      url.searchParams,
+      50,
+      true,
+    );
+    const result = await this.userService.get_game_logs(rangeRequest);
+    return result;
   }
 }
