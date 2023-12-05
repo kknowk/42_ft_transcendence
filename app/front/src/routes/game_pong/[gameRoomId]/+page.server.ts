@@ -1,6 +1,6 @@
-import { getOriginalRequest } from '$lib/helpers';
-import { error, redirect } from '@sveltejs/kit';
-import type { PageServerLoadEvent } from './$types';
+import { getOriginalRequest } from "$lib/helpers";
+import { error } from "@sveltejs/kit";
+import type { PageServerLoadEvent } from "./$types";
 // import { gameMatchingService } from '$lib/services';
 
 export async function load(ev: PageServerLoadEvent) {
@@ -17,21 +17,22 @@ export async function load(ev: PageServerLoadEvent) {
   const user_id = parent.user.id;
   console.log("Game Room Id: " + ev.params.gameRoomId);
   const gameRoomId = parseInt(ev.params.gameRoomId);
-  const isAllowed = await services.gameMatchingService.checkUserAccessToGameRoom(user_id, gameRoomId);
-  
-  if (isAllowed)
-    return {user_id};
+  const isAllowed = await services.gameMatchingService.checkUserAccessToGameRoom(
+    user_id,
+    gameRoomId
+  );
 
-
-  const isgroupAllowed = await services.gameMatchingService.checkGroupUserAccessToGameRoom(user_id, gameRoomId);
-  if (isgroupAllowed)
-    return {user_id};
-
-  else {
-    throw error(403, "You are not authorized to access this game room");
+  if (isAllowed) {
+    return { user_id };
   }
 
-  return {
-    user_id
-  };
+  const isGroupAllowed = await services.gameMatchingService.checkGroupUserAccessToGameRoom(
+    user_id,
+    gameRoomId
+  );
+  if (isGroupAllowed) {
+    return { user_id };
+  } else {
+    throw error(403, "You are not authorized to access this game room");
+  }
 }

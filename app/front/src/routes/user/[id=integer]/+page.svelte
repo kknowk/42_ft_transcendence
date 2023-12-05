@@ -36,16 +36,21 @@
       user_relationship={data.relationship}
       callback={relationshipCallback}
     />
-    <span>Win: {data.win}</span>
-    <span>Lose: {data.lose}</span>
+    <div>
+      <p>Win: {data.win}</p>
+      <p>Lose: {data.lose}</p>
+    </div>
     <div>
       <h2>History</h2>
       {#each data.logs as log}
         <div class="log-{log.win ? 'win' : 'lose'}">
-          <a href="/user/{log.id.toString()}">{log.name}</a>
-          <time title={new Date(log.date * 1000).toLocaleString()}>
-            {showTimeDiff(log.date, now)}
-          </time>
+          <p>Result: {log.win ? "win" : "lose"}</p>
+          <p><a href="/user/{log.id.toString()}">Opponent: {log.name}</a></p>
+          <p>
+            <time title={new Date(log.date * 1000).toLocaleString()}>
+              {showTimeDiff(log.date, now)}
+            </time>
+          </p>
         </div>
       {/each}
     </div>
