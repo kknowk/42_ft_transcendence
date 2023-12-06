@@ -8,15 +8,13 @@ import {
   UserRelationshipKind,
   IUserWithRelationship,
   UserActivityKind,
-  fromMimeTypeToUserAvatarFileKind,
-  UserAvatarFileKind,
   Notice,
 } from './user.entity.js';
 import { InsertResult, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GameLog } from '../game/game.entity.js';
 import * as address from 'email-addresses';
-import { fileTypeFromBlob } from 'file-type';
+import { fileTypeFromBuffer } from 'file-type';
 import { ConfigService } from '@nestjs/config';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
@@ -27,6 +25,7 @@ import {
 } from '../utility/range-request.js';
 import { InsertQueryBuilder } from 'typeorm/browser';
 import { genSalt, hash } from 'bcrypt';
+import { createCanvas, loadImage } from '@napi-rs/canvas';
 
 @Injectable()
 export class UserService {
@@ -42,16 +41,12 @@ export class UserService {
     private gameLogRepository: Repository<GameLog>,
     @InjectRepository(Notice)
     private noticeRepository: Repository<Notice>,
-    configService: ConfigService,
-  ) {
-    this.#image_path = configService.get('AVATAR_IMAGE_PATH');
-  }
+    private configService: ConfigService,
+  ) {}
 
   #calc_time = () => {
     return Math.floor(Date.now() / 1000);
   };
-
-  #image_path: string;
 
   public async findOrCreate(
     id_42: string,
@@ -71,7 +66,43 @@ export class UserService {
     const user = await this.userRepository.save(tmpUser);
     await this.user42CrossRepository.save({ id_42: id_42, id: user.id });
     await this.userDetailInfoRepository.save({ id: user.id, email });
-    return user.to_interface();
+    const answer: IUser & {
+      new?: true;
+    } = user.to_interface();
+    answer.new = true;
+    try {
+      const buffer = await this.createFirstIcon(user.id);
+      await writeFile(
+        join(this.configService.get('ICON_PATH'), `${user.id}.png`),
+        buffer,
+        {
+          encoding: 'binary',
+        },
+      );
+    } finally {
+      return answer;
+    }
+  }
+
+  private createFirstIcon(id: number) {
+    const canvas = createCanvas(400, 400);
+    const context = canvas.getContext('2d');
+    context.font = 'bold 24px sans-serif';
+    context.fillStyle = 'black';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(id.toString(), 200, 200);
+    return canvas.encode('png');
+  }
+
+  public async isValidPngFile(file: Buffer) {
+    const array = new Uint8Array(file);
+    const type = await fileTypeFromBuffer(array);
+    if (type.ext !== 'png' && type.mime !== 'image/png') {
+      return false;
+    }
+    const image = await loadImage(file);
+    return image.height === 400 && image.width === 400;
   }
 
   public async test_find_or_create(
@@ -263,31 +294,6 @@ export class UserService {
       .returning('id')
       .execute();
     return exe_result.generatedMaps.length;
-  }
-
-  public async set_avatar(user_id: number, blob: Blob) {
-    if (blob.size > 1024 * 1024) return false;
-    const kind = fromMimeTypeToUserAvatarFileKind(
-      (await fileTypeFromBlob(blob)).mime,
-    );
-    if (kind == null) return false;
-    const path = join(this.#image_path, user_id.toString());
-    const buffer = Buffer.from(await blob.arrayBuffer());
-    try {
-      await writeFile(path, buffer);
-    } catch {
-      return false;
-    }
-    return true;
-  }
-
-  public async get_avatar_kind(user_id: number) {
-    const one = await this.userDetailInfoRepository
-      .createQueryBuilder()
-      .select('avatar_kind')
-      .where('id=:id', { id: user_id })
-      .getRawOne();
-    return one?.avatar_kind as UserAvatarFileKind | null;
   }
 
   public async find_by_partial_name(
