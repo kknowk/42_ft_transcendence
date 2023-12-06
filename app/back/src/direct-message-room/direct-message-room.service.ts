@@ -64,6 +64,7 @@ export class DirectMessageRoomService {
       counterpart_id: number;
       counterpart_name: string;
       last_log_id: number;
+      hide_log_id: number;
     }[]
   > {
     const relationship_query0 = this.relationshipRepository
@@ -90,6 +91,7 @@ export class DirectMessageRoomService {
       .addSelect('b.user_id', 'counterpart_id')
       .addSelect('u.displayName', 'counterpart_name')
       .addSelect('max(l.id) OVER (PARTITION BY l.room_id)', 'last_log_id')
+      .addSelect('a.hide_log_id', 'hide_log_id')
       .distinctOn(['room_id'])
       .innerJoin(DirectMessageRoomMembership, 'b', 'a.room_id=b.room_id')
       .innerJoin(User, 'u', 'u.id=b.user_id')
@@ -97,8 +99,7 @@ export class DirectMessageRoomService {
       .where(
         'a.user_id = :requester_id AND b.user_id <> :requester_id' +
           ' AND NOT EXISTS (SELECT 1 FROM r0 WHERE r0.id=b.user_id)' +
-          ' AND NOT EXISTS (SELECT 1 FROM r1 WHERE r1.id=b.user_id)' +
-          ' AND last_log_id > a.hide_log_id',
+          ' AND NOT EXISTS (SELECT 1 FROM r1 WHERE r1.id=b.user_id)',
         { requester_id: request.user_id },
       );
     query = addWhereCondition(request, query, 'a.room_id', true);
