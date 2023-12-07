@@ -31,10 +31,22 @@
   </div>
   <main class="grid-main">
     <span>Name: {data.user.displayName}</span>
+    <div>
+      <img
+        src="/api/user/icon/{data.user.id}"
+        alt="icon of {data.user.id}"
+        width="400"
+        height="400"
+        crossorigin="use-credentials"
+        decoding="async"
+        loading="lazy"
+      />
+    </div>
     <SetRelationshipButtons
       user_id={data.user.id}
       user_relationship={data.relationship}
       callback={relationshipCallback}
+      is_inline={false}
     />
     <div>
       <p>Win: {data.win}</p>
