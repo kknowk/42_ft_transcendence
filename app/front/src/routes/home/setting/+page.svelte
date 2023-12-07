@@ -58,12 +58,20 @@
 </script>
 
 <form on:submit={submitFunction} class="grid-container">
-  <label for="user-name">Name</label>
-  <input id="user-name" type="text" name="user-name" value={data.user.displayName} />
-  <label for="user-email">Email</label>
-  <input id="user-email" type="email" name="user-email" value={data.email ?? ""} />
-  <label for="2fa">2 Factor Auth</label>
-  <label class="toggle-switch">
+  <label class="has-one" for="user-name">Name</label>
+  <input
+    class="has-two"
+    id="user-name"
+    type="text"
+    name="user-name"
+    value={data.user.displayName}
+  />
+
+  <label class="has-one" for="user-email">Email</label>
+  <input class="has-two" id="user-email" type="email" name="user-email" value={data.email ?? ""} />
+
+  <label class="has-one" for="2fa">2 Factor Auth</label>
+  <label class="has-two toggle-switch">
     <input
       id="2fa"
       type="checkbox"
@@ -71,8 +79,19 @@
       checked={data.user.two_factor_authentication_required}
     />
   </label>
+
   <label for="user-icon">Icon{"("}400×400px png {"<"}2MB file{")"}</label>
+  <img
+    src="/api/user/icon/{data.user.id}"
+    alt="icon of {data.user.id}"
+    width="400"
+    height="400"
+    crossorigin="use-credentials"
+    decoding="async"
+    loading="lazy"
+  />
   <input id="user-icon" type="file" name="user-icon" accept=".png,image/png" />
+
   <input type="submit" value="Change" />
 </form>
 
@@ -84,15 +103,23 @@
 
   .grid-container {
     display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-template-columns: auto auto 1fr;
+    grid-template-rows: 1fr 1fr 1fr auto 1fr;
 
     & * {
       margin: 0.5em;
     }
 
+    & .has-one {
+      grid-column: 1 / 2;
+    }
+
+    & .has-two {
+      grid-column: 2 / 4;
+    }
+
     & input[type="submit"] {
-      grid-column: 1 / 3;
+      grid-column: 1 / 4;
     }
   }
 

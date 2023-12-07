@@ -17,7 +17,7 @@ import * as address from 'email-addresses';
 import { fileTypeFromBuffer } from 'file-type';
 import { ConfigService } from '@nestjs/config';
 import { writeFile } from 'fs/promises';
-import { join } from 'path';
+import { dirname, join } from 'path';
 import {
   IRangeRequestWithUserId,
   addWhereCondition,
@@ -26,6 +26,10 @@ import {
 import { InsertQueryBuilder } from 'typeorm/browser';
 import { genSalt, hash } from 'bcrypt';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 @Injectable()
 export class UserService {
@@ -71,20 +75,13 @@ export class UserService {
     } = user.to_interface();
     answer.new = true;
     try {
-      const buffer = await this.createFirstIcon(user.id);
-      await writeFile(
-        join(this.configService.get('ICON_PATH'), `${user.id}.png`),
-        buffer,
-        {
-          encoding: 'binary',
-        },
-      );
+      await this.createFirstIcon(user.id);
     } finally {
       return answer;
     }
   }
 
-  private createFirstIcon(id: number) {
+  private async createFirstIcon(id: number) {
     const canvas = createCanvas(400, 400);
     const context = canvas.getContext('2d');
     context.font = 'bold 24px sans-serif';
@@ -92,7 +89,11 @@ export class UserService {
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.fillText(id.toString(), 200, 200);
-    return canvas.encode('png');
+    const buffer = await canvas.encode('png');
+    const path = join(__dirname, '..', '..', 'images', `icon-${id}.png`);
+    await writeFile(path, buffer, {
+      encoding: 'binary',
+    });
   }
 
   public async isValidPngFile(file: Buffer) {
@@ -118,7 +119,15 @@ export class UserService {
     tmpUser.activity_kind = UserActivityKind.login;
     tmpUser.displayName = await this.#get_displayable_name(displayName);
     const user = await this.userRepository.save(tmpUser);
-    return user.to_interface();
+    const answer: IUser & {
+      new?: true;
+    } = user.to_interface();
+    answer.new = true;
+    try {
+      await this.createFirstIcon(user.id);
+    } finally {
+      return answer;
+    }
   }
 
   async #get_displayable_name(name: string): Promise<string> {
