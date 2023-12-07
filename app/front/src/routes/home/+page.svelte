@@ -62,7 +62,7 @@
   <title>{data.user?.displayName}'s Home</title>
 </svelte:head>
 
-<main>
+<main class="grid-container">
   {#if isMatching}
     <p>マッチング中です。しばらくお待ちください...</p>
     <img src="/loli.jpg" alt="uisama" />
@@ -102,8 +102,19 @@
   main {
     margin-top: 1ex;
   }
-  
+
   search {
     margin-top: 1em;
+  }
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+
+    & button {
+      width: 100%;
+      text-align: center;
+      background-color: antiquewhite;
+    }
   }
 </style>
