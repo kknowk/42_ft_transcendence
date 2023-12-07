@@ -72,7 +72,9 @@
 <style>
   div {
     & button {
-      margin-left: 50px;
+      &:not(:first-child) {
+        margin-left: 50px;
+      }
       background-color: azure;
     }
   }
