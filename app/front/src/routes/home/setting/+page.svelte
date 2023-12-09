@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { invalidateAll } from "$app/navigation";
+  import { goto, invalidateAll } from "$app/navigation";
+  import { page } from "$app/stores";
   import type { PageData } from "./$types";
   export let data: PageData;
 
   async function submitFunction(ev: SubmitEvent) {
     ev.preventDefault();
-    console.log("SUBMIT");
+    button.disabled = true;
     const formData = new FormData(ev.target as HTMLFormElement);
     {
       const userName = formData.get("user-name")?.valueOf();
@@ -49,13 +50,26 @@
         formData.delete("user-icon");
       }
     }
-    await fetch("/api/user/change-settings", {
+    const response = await fetch("/api/user/change-settings", {
       method: "POST",
       body: formData,
     });
-    await invalidateAll();
+    if (response.ok) {
+      await goto($page.url.toString(), { invalidateAll: true, replaceState: true });
+    } else {
+      failureElem.style.display = "block";
+      setTimeout(() => {
+        failureElem.style.display = "none";
+        button.disabled = false;
+      }, 3000);
+    }
   }
+
+  let failureElem: HTMLDivElement;
+  let button: HTMLInputElement;
 </script>
+
+<div bind:this={failureElem} class="failure-div">Your input is invalid.</div>
 
 <form on:submit={submitFunction} class="grid-container">
   <label class="has-one" for="user-name">Name</label>
@@ -92,10 +106,23 @@
   />
   <input id="user-icon" type="file" name="user-icon" accept=".png,image/png" />
 
-  <input type="submit" value="Change" />
+  <input type="submit" value="Change" bind:this={button} />
 </form>
 
 <style>
+  .failure-div {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    border: 1px solid #ddd;
+    background-color: red;
+    color: white;
+    padding: 15px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+
   form {
     margin-top: 1ex;
     margin-bottom: 0.5em;
