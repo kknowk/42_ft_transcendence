@@ -55,7 +55,7 @@
       body: formData,
     });
     if (response.ok) {
-      await goto($page.url.toString(), { invalidateAll: true, replaceState: true });
+      await invalidateAll();
     } else {
       failureElem.style.display = "block";
       setTimeout(() => {
@@ -95,15 +95,17 @@
   </label>
 
   <label for="user-icon">Icon{"("}400×400px png {"<"}2MB file{")"}</label>
-  <img
-    src="/api/user/icon/{data.user.id}"
-    alt="icon of {data.user.id}"
-    width="400"
-    height="400"
-    crossorigin="use-credentials"
-    decoding="async"
-    loading="lazy"
-  />
+  <label for="user-icon">
+    <img
+      src="/api/user/icon/{data.user.id}"
+      alt="icon of {data.user.id}"
+      width="400"
+      height="400"
+      crossorigin="use-credentials"
+      decoding="async"
+      loading="lazy"
+    />
+  </label>
   <input id="user-icon" type="file" name="user-icon" accept=".png,image/png" />
 
   <input type="submit" value="Change" bind:this={button} />
@@ -193,6 +195,19 @@
 
     & input {
       display: none;
+    }
+  }
+
+  @media screen and (max-width: 959px) {
+    img {
+      width: 200px;
+      height: 200px;
+    }
+  }
+  @media screen and (max-width: 599px) {
+    img {
+      width: 50px;
+      height: 50px;
     }
   }
 </style>
