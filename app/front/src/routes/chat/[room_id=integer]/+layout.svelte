@@ -103,10 +103,6 @@
                   </li>
                 {:else if (data.users.get(member_id)?.relationship ?? -1) >= 0}
                   <li>
-                    <SetRelationshipButtons
-                      user_id={member_id}
-                      user_relationship={data.users.get(member_id)?.relationship ?? 0}
-                    />
                     <a href="/user/{member_id}">{data.users.get(member_id)?.displayName}</a>
                   </li>
                 {/if}
@@ -123,10 +119,6 @@
                   </li>
                 {:else if (data.users.get(member_id)?.relationship ?? -1) >= 0}
                   <li>
-                    <SetRelationshipButtons
-                      user_id={member_id}
-                      user_relationship={data.users.get(member_id)?.relationship ?? 0}
-                    />
                     <a href="/user/{member_id}">{data.users.get(member_id)?.displayName}</a>
                   </li>
                 {/if}
@@ -143,10 +135,6 @@
                   </li>
                 {:else if (data.users.get(member_id)?.relationship ?? -1) >= 0}
                   <li>
-                    <SetRelationshipButtons
-                      user_id={member_id}
-                      user_relationship={data.users.get(member_id)?.relationship ?? 0}
-                    />
                     <a href="/user/{member_id}">{data.users.get(member_id)?.displayName}</a>
                   </li>
                 {/if}
@@ -236,6 +224,7 @@
             display: block;
             text-decoration: none;
             text-align: center;
+            width: 100%;
           }
         }
       }
