@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   IUser,
   User,
@@ -256,7 +256,9 @@ export class UserService {
   }
 
   public async set_display_name(user_id: number, name: string) {
-    if (name.length === 0 || name.length > 16) return;
+    if (name.length === 0 || name.length > 16) {
+      throw new BadRequestException("invalid name");
+    }
     const result = (
       await this.userRepository
         .createQueryBuilder()
@@ -285,7 +287,9 @@ export class UserService {
 
   public async set_email(user_id: number, email: string) {
     const result = address.default.parseOneAddress(email);
-    if (result == null) return 0;
+    if (result == null) {
+      throw new BadRequestException("invalid email");
+    }
     const exe_result = await this.userDetailInfoRepository
       .createQueryBuilder()
       .update()
