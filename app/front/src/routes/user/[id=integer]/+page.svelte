@@ -46,7 +46,7 @@
       user_id={data.user.id}
       user_relationship={data.relationship}
       callback={relationshipCallback}
-      is_inline={false}
+      --set-relationship-buttons-div-display="block"
     />
     <div>
       <h2>History - Win: {data.win} Lose: {data.lose}</h2>
