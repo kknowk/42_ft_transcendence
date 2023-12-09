@@ -1,10 +1,7 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-
   export let user_id: number;
   export let user_relationship: number;
   export let callback: null | ((button: HTMLButtonElement, response: Response) => unknown) = null;
-  export let is_inline: boolean = true;
 
   let add_friend_button: HTMLButtonElement;
   async function add_friend_clickFunc() {
@@ -35,14 +32,9 @@
       callback(ban_button, response);
     }
   }
-
-  let div: HTMLDivElement;
-  onMount(() => {
-    div.style.display = is_inline ? "inline" : "block";
-  });
 </script>
 
-<div bind:this={div}>
+<div>
   {#if user_relationship <= 0}
     <button
       data-kind="add-friend"
@@ -71,11 +63,16 @@
 
 <style>
   div {
+    display: var(--set-relationship-buttons-div-display, inline);
+
     & button {
       &:not(:first-child) {
-        margin-left: 50px;
+        margin-left: var(--set-relationship-buttons-button-margin-left, 10px);
+        margin-top: var(--set-relationship-buttons-button-margin-top, 0);
+        margin-right: var(--set-relationship-buttons-button-margin-right, 10px);
+        margin-bottom: var(--set-relationship-buttons-button-margin-bottom, 0);
       }
-      background-color: azure;
+      background-color: var(--set-relationship-buttons-button-background-color, azure);
     }
   }
 </style>
