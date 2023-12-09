@@ -147,7 +147,7 @@
   }
 
   .log-lose {
-    background-color: indigo;
+    background-color: black;
     color: white;
     padding: 1ex;
 
