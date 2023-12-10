@@ -16,7 +16,7 @@ import { GameLog } from '../game/game.entity.js';
 import * as address from 'email-addresses';
 import { fileTypeFromBuffer } from 'file-type';
 import { ConfigService } from '@nestjs/config';
-import { writeFile } from 'fs/promises';
+import { constants, copyFile } from 'fs/promises';
 import { dirname, join } from 'path';
 import {
   IRangeRequestWithUserId,
@@ -25,8 +25,8 @@ import {
 } from '../utility/range-request.js';
 import { InsertQueryBuilder } from 'typeorm/browser';
 import { genSalt, hash } from 'bcrypt';
-import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { fileURLToPath } from 'url';
+import { imageSize } from 'image-size';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -82,18 +82,9 @@ export class UserService {
   }
 
   private async createFirstIcon(id: number) {
-    const canvas = createCanvas(400, 400);
-    const context = canvas.getContext('2d');
-    context.font = 'bold 24px sans-serif';
-    context.fillStyle = 'black';
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.fillText(id.toString(), 200, 200);
-    const buffer = await canvas.encode('png');
-    const path = join(__dirname, '..', '..', 'images', `icon-${id}.png`);
-    await writeFile(path, buffer, {
-      encoding: 'binary',
-    });
+    const default_source = join(__dirname, '..', '..', 'images', 'default.png');
+    const destination = join(__dirname, '..', '..', 'images', `icon-${id}.png`);
+    await copyFile(default_source, destination, constants.COPYFILE_FICLONE);
   }
 
   public async isValidPngFile(file: Buffer) {
@@ -102,8 +93,8 @@ export class UserService {
     if (type.ext !== 'png' && type.mime !== 'image/png') {
       return false;
     }
-    const image = await loadImage(file);
-    return image.height === 400 && image.width === 400;
+    const size = imageSize(file);
+    return size.width === size.height && size.width === 400;
   }
 
   public async test_find_or_create(
