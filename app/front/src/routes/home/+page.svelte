@@ -112,7 +112,6 @@
     grid-template-columns: 1fr;
 
     & button {
-      width: 100%;
       text-align: center;
       background-color: antiquewhite;
     }

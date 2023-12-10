@@ -129,5 +129,10 @@
   button {
     padding: 1ex;
     width: 100%;
+	transition: background-color 0.2s;
+  }
+
+  button:hover {
+	background-color: #f0ab5b;
   }
 </style>

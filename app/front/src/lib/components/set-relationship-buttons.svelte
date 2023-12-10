@@ -72,10 +72,16 @@
 <style>
   div {
     & button {
+      width: 100px;
+
       &:not(:first-child) {
         margin-left: 50px;
       }
       background-color: azure;
+
+      &:hover {
+        background-color: aquamarine;
+      }
     }
   }
 </style>

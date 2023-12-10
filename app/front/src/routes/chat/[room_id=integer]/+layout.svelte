@@ -132,6 +132,10 @@
 </div>
 
 <style>
+  a:hover {
+    text-decoration: underline;
+  }
+
   .grid-container {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -190,8 +194,12 @@
 
       & summary::before {
         content: "☰ ";
+        transition: background-color 0.2s;
       }
 
+      & summary:hover::before {
+        background-color: rgba(0, 0, 0, 0.13);
+      }
       & p {
         text-align: center;
       }
