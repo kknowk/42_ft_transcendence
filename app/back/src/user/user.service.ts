@@ -86,7 +86,11 @@ export class UserService {
     const canvas = createCanvas(400, 400);
     const context = canvas.getContext('2d');
     context.font = 'bold 64px sans-serif';
-    const randomColor = '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
+    const randomColor =
+      '#' +
+      Math.floor(Math.random() * 0xffffff)
+        .toString(16)
+        .padStart(6, '0');
     context.fillStyle = randomColor;
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = 'black';
@@ -270,7 +274,7 @@ export class UserService {
 
   public async set_display_name(user_id: number, name: string) {
     if (name.length === 0 || name.length > 16) {
-      throw new BadRequestException("invalid name");
+      throw new BadRequestException('invalid name');
     }
     const result = (
       await this.userRepository
@@ -301,7 +305,7 @@ export class UserService {
   public async set_email(user_id: number, email: string) {
     const result = address.default.parseOneAddress(email);
     if (result == null) {
-      throw new BadRequestException("invalid email");
+      throw new BadRequestException('invalid email');
     }
     const exe_result = await this.userDetailInfoRepository
       .createQueryBuilder()
@@ -350,12 +354,24 @@ export class UserService {
     const query = this.userRepository
       .createQueryBuilder('u')
       .select('u.displayName', 'displayName')
-      .where('id=:user_id', { user_id });
+      .where('u.id=:user_id', { user_id });
     const result = await query.getRawOne();
     if (result == null) {
       return null;
     }
     return result.displayName;
+  }
+
+  public async get_display_names(
+    user_ids: number[],
+  ): Promise<{ id: number; displayName: string }[]> {
+    const query = this.userRepository
+      .createQueryBuilder('u')
+      .addSelect('u.id', 'id')
+      .select('u.displayName', 'displayName')
+      .where('u.id IN (:...user_ids)', { user_ids });
+    const result = await query.getRawMany();
+    return result;
   }
 
   public async get_users(

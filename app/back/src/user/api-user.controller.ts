@@ -29,6 +29,7 @@ import { dirname, join } from 'path';
 import { createIRangeRequestWithUserFromURLSearchParams } from '../utility/range-request.js';
 import { JwtUpdateInterceptor } from '../auth/jwt.update.interceptor.js';
 import { writeFile, access, constants } from 'fs/promises';
+import { JsonPipe } from '../custom-pipe/json-pipe.js';
 import { fileURLToPath } from 'url';
 import { createReadStream, mkdirSync } from 'fs';
 
@@ -81,6 +82,14 @@ export class ApiUserController {
     if (relationship <= UserRelationshipKind.banned)
       throw new NotFoundException();
     return target_user;
+  }
+
+  @UseInterceptors(JwtUpdateInterceptor)
+  @Post('users')
+  async get_users(@Req() req: Request, @Body(JsonPipe) body: number[]) {
+    const user = req.user as IUser;
+    const users = await this.userService.get_users(user.id, body);
+    return users;
   }
 
   @UseInterceptors(JwtUpdateInterceptor)
