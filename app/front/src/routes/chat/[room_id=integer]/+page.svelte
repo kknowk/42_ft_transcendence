@@ -230,7 +230,7 @@
   {:else if data.room.kind === 1}
     This {data.room.name} is a password-protected chat room.
     <form on:submit={joinProtected}>
-      <input type="password" bind:this={password_sender} minlength="8" />
+      <input type="password" bind:this={password_sender} minlength="8" autocomplete="on" />
       <input type="submit" />
     </form>
   {:else if data.room.kind === 2}
