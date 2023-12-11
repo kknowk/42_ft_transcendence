@@ -268,13 +268,12 @@ export class ApiChatRoomController {
   }
 
   @Header('Content-Type', 'text/plain;charset=utf-8')
-  @Get('skyway-token/:room_id')
+  @Get('skyway-token')
   async get_skyway_token(
-    @Req() req: Request,
-    @Param('room_id', ParseIntPipe) room_id: number,
+    @Req() req: Request
   ) {
     const user = req.user as IUser;
-    const token = this.chatRoomService.get_skyway_token(user.id, room_id);
+    const token = await this.chatRoomService.get_skyway_token(user.id);
     if (token === null) {
       throw new NotImplementedException();
     }

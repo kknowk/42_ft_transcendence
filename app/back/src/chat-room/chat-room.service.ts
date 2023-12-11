@@ -665,17 +665,11 @@ export class ChatRoomService {
     return log_id;
   }
 
-  public get_skyway_token(requester_id: number, room_id: number) {
+  public async get_skyway_token(requester_id: number) {
     if (this.#skyway_id === null || this.#skyway_secret === null) {
       return null;
     }
-    const exists = this.membershipRepository.exist({
-      where: {
-        room_id,
-        member_id: requester_id,
-      },
-    });
-    if (!exists) {
+    if (!(await this.userService.get_existence(requester_id))) {
       return null;
     }
     const now = nowInSec();
@@ -690,7 +684,7 @@ export class ChatRoomService {
           turn: false,
           channels: [
             {
-              name: `chat-${room_id}`,
+              name: '*',
               actions: ['write'],
               members: [
                 {

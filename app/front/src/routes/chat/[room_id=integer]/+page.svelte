@@ -3,10 +3,13 @@
   import Message from "$lib/components/message.svelte";
   import EnterKeyTextarea from "$lib/components/enter-key-textarea.svelte";
   import InfiniteScrolling from "$lib/components/infinite-scrolling.svelte";
-  import { onDestroy, onMount } from "svelte";
+  import { getContext, onDestroy, onMount, setContext } from "svelte";
   import type { IChatLog } from "$lib/back/chat-room/chat-room.entity";
   import { browser } from "$app/environment";
-  import { goto } from "$app/navigation";
+  import { beforeNavigate, goto } from "$app/navigation";
+  import type { SkyWayBag as SkyWayBagType } from "$lib/skyway-bag";
+  import { store } from "$lib/skywaybag-store";
+  import type { Writable } from "svelte/store";
 
   export let data: PageData;
   let logs = data.logs;
@@ -58,12 +61,24 @@
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
+    console.log("skyway on mount");
+    if ($store) {
+      $store.joinRoom(data.room.id, polling);
+      return;
+    }
+    const { SkyWayBag } = await import("$lib/skyway-bag");
+    $store = await SkyWayBag.create(data.user.id);
+    if ($store) {
+      $store.joinRoom(data.room.id, polling);
+      return;
+    }
+    console.log("fallback to visibility change");
     intervalId = setInterval(polling, 60000) as unknown as number;
-    document?.addEventListener("visibilitychange", visibilityChangeHandler);
+    document.addEventListener("visibilitychange", visibilityChangeHandler);
   });
 
-  onDestroy(() => {
+  onDestroy(async () => {
     if (browser) {
       if (intervalId) {
         clearInterval(intervalId);
@@ -94,6 +109,7 @@
       }?order=descending&start_exclusive=${get_start_exclusive_id()}`;
       const response = await fetch(url, option);
       await renewLogs(response);
+      $store?.send();
     } finally {
       buttonElement.disabled = false;
     }
