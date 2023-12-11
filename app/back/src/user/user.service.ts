@@ -16,7 +16,7 @@ import { GameLog } from '../game/game.entity.js';
 import * as address from 'email-addresses';
 import { fileTypeFromBuffer } from 'file-type';
 import { ConfigService } from '@nestjs/config';
-import { constants, copyFile } from 'fs/promises';
+import { writeFile } from 'fs/promises';
 import { dirname, join } from 'path';
 import {
   IRangeRequestWithUserId,
@@ -25,6 +25,7 @@ import {
 } from '../utility/range-request.js';
 import { InsertQueryBuilder } from 'typeorm/browser';
 import { genSalt, hash } from 'bcrypt';
+import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { fileURLToPath } from 'url';
 import { imageSize } from 'image-size';
 
@@ -82,9 +83,21 @@ export class UserService {
   }
 
   private async createFirstIcon(id: number) {
-    const default_source = join(__dirname, '..', '..', 'images', 'default.png');
-    const destination = join(__dirname, '..', '..', 'images', `icon-${id}.png`);
-    await copyFile(default_source, destination, constants.COPYFILE_FICLONE);
+    const canvas = createCanvas(400, 400);
+    const context = canvas.getContext('2d');
+    context.font = 'bold 64px sans-serif';
+    const randomColor = '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
+    context.fillStyle = randomColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = 'black';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(id.toString(), 200, 200);
+    const buffer = await canvas.encode('png');
+    const path = join(__dirname, '..', '..', 'images', `icon-${id}.png`);
+    await writeFile(path, buffer, {
+      encoding: 'binary',
+    });
   }
 
   public async isValidPngFile(file: Buffer) {
@@ -165,9 +178,9 @@ export class UserService {
     >[]
   > {
     /*
-		WITH "friends"("id") AS (SELECT "to_id" FROM "UserRelationship" WHERE "from_id"=$id AND "relationship"=1)
-		SELECT * FROM "User" AS "u" INNER JOIN "friends" AS "f" ON "u"."id"="f"."id";
-		*/
+    WITH "friends"("id") AS (SELECT "to_id" FROM "UserRelationship" WHERE "from_id"=$id AND "relationship"=1)
+    SELECT * FROM "User" AS "u" INNER JOIN "friends" AS "f" ON "u"."id"="f"."id";
+    */
     const query = this.userRelationshipRepository
       .createQueryBuilder()
       .select('to_id')
@@ -301,9 +314,9 @@ export class UserService {
     name: string,
   ): Promise<IUserWithRelationship[]> {
     /*
-		SELECT * FROM "User" LEFT JOIN "UserRelationship" ON "User"."Id" = "UserRelationship"."to_id" AND "UserRelationship"."to_id"
-			WHERE "u.displayName" LIKE "%:name%";
-		*/
+    SELECT * FROM "User" LEFT JOIN "UserRelationship" ON "User"."Id" = "UserRelationship"."to_id" AND "UserRelationship"."to_id"
+      WHERE "u.displayName" LIKE "%:name%";
+    */
     let query = this.userRepository
       .createQueryBuilder('u')
       .select('u.id', 'id')
