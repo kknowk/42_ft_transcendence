@@ -202,26 +202,22 @@ export class ApiUserController {
         throw new InternalServerErrorException(error);
       }
     }
-    const promises = [] as Promise<any>[];
     const name = body['user-name'];
     if (name != null) {
-      promises.push(this.userService.set_display_name(user.id, name));
+      await this.userService.set_display_name(user.id, name);
+      user.displayName = name;
     }
     const email = body['user-email'];
     if (email != null) {
-      promises.push(this.userService.set_email(user.id, email));
+      await this.userService.set_email(user.id, email);
     }
     const _2fa = body['user-2fa'];
     if (_2fa != null) {
-      promises.push(
-        this.userService.set_two_factor_authentication_required(
-          user.id,
-          _2fa === 'on',
-        ),
+      await this.userService.set_two_factor_authentication_required(
+        user.id,
+        _2fa === 'on',
       );
-    }
-    if (promises.length > 0) {
-      await Promise.all(promises);
+      user.two_factor_authentication_required = _2fa === 'on';
     }
   }
 
@@ -246,7 +242,6 @@ export class ApiUserController {
     }
     const path = join(__dirname, '..', '..', 'images', `icon-${user_id}.png`);
     try {
-      console.log('create read stream');
       await access(path, constants.O_RDONLY);
     } catch (error) {
       console.error(error);

@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { goto, invalidateAll } from "$app/navigation";
-  import { page } from "$app/stores";
   import type { PageData } from "./$types";
   export let data: PageData;
+  let img_count = 0;
 
   async function submitFunction(ev: SubmitEvent) {
     ev.preventDefault();
@@ -10,24 +9,23 @@
     const formData = new FormData(ev.target as HTMLFormElement);
     {
       const userName = formData.get("user-name")?.valueOf();
-      if (
-        userName == null ||
-        typeof userName !== "string" ||
-        userName.length === 0 ||
-        userName === data.user.displayName
-      ) {
+      if (userName == null || userName === data.user.displayName) {
         formData.delete("user-name");
+      } else if (typeof userName !== "string" || userName.length === 0) {
+        showFailure();
+        return;
       }
     }
     {
       const userEmail = formData.get("user-email")?.valueOf();
       if (
         userEmail == null ||
-        typeof userEmail !== "string" ||
-        userEmail.length === 0 ||
-        userEmail === data.email
+        typeof userEmail !== "string"
       ) {
         formData.delete("user-email");
+      } else if (userEmail.length === 0 || userEmail === data.email) {
+        showFailure();
+        return;
       }
     }
     {
@@ -55,19 +53,32 @@
       body: formData,
     });
     if (response.ok) {
-      await invalidateAll();
-    } else {
-      failureElem.style.display = "block";
+      icon.src = icon.src + `?r=${img_count}`;
+      img_count++;
       setTimeout(() => {
-        failureElem.style.display = "none";
         button.disabled = false;
       }, 3000);
+      return;
     }
+    showFailure();
   }
 
+  function showFailure() {
+    failureElem.style.display = "block";
+    setTimeout(() => {
+      failureElem.style.display = "none";
+      button.disabled = false;
+    }, 3000);
+  }
+
+  let icon: HTMLImageElement;
   let failureElem: HTMLDivElement;
   let button: HTMLInputElement;
 </script>
+
+<svelte:head>
+  <title>Settings for {data.user.displayName}</title>
+</svelte:head>
 
 <div bind:this={failureElem} class="failure-div">Your input is invalid.</div>
 
@@ -101,9 +112,7 @@
       alt="icon of {data.user.id}"
       width="400"
       height="400"
-      crossorigin="use-credentials"
-      decoding="async"
-      loading="lazy"
+      bind:this={icon}
     />
   </label>
   <input id="user-icon" type="file" name="user-icon" accept=".png,image/png" />

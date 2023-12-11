@@ -34,47 +34,40 @@
   }
 </script>
 
-<div>
-  {#if user_relationship <= 0}
-    <button
-      data-kind="add-friend"
-      data-id={user_id}
-      data-new-value="1"
-      on:click={add_friend_clickFunc}
-      bind:this={add_friend_button}>Add Friend</button
-    >
-  {:else}
-    <button
-      data-kind="remove-friend"
-      data-id={user_id}
-      data-new-value="0"
-      on:click={reove_friend_clickFunc}
-      bind:this={remove_friend_button}>Remove Friend</button
-    >
-  {/if}
+{#if user_relationship <= 0}
   <button
-    data-kind="ban"
+    data-kind="add-friend"
     data-id={user_id}
-    data-new-value="-1"
-    on:click={ban_button_clickFunc}
-    bind:this={ban_button}>Ban</button
+    data-new-value="1"
+    on:click={add_friend_clickFunc}
+    bind:this={add_friend_button}>Add Friend</button
   >
-</div>
+{:else}
+  <button
+    data-kind="remove-friend"
+    data-id={user_id}
+    data-new-value="0"
+    on:click={reove_friend_clickFunc}
+    bind:this={remove_friend_button}>Remove Friend</button
+  >
+{/if}
+<button
+  data-kind="ban"
+  data-id={user_id}
+  data-new-value="-1"
+  on:click={ban_button_clickFunc}
+  bind:this={ban_button}>Ban</button
+>
 
 <style>
-  div {
+  button {
     display: var(--set-relationship-buttons-div-display, inline);
-
-    & button {
-      width: 100px;
-
-      &:not(:first-child) {
-        margin-left: var(--set-relationship-buttons-button-margin-left, 10px);
-        margin-top: var(--set-relationship-buttons-button-margin-top, 0);
-        margin-right: var(--set-relationship-buttons-button-margin-right, 10px);
-        margin-bottom: var(--set-relationship-buttons-button-margin-bottom, 0);
-      }
-      background-color: var(--set-relationship-buttons-button-background-color, azure);
+    &:not(:first-child) {
+      margin-left: var(--set-relationship-buttons-button-margin-left, 10px);
+      margin-top: var(--set-relationship-buttons-button-margin-top, 0);
+      margin-right: var(--set-relationship-buttons-button-margin-right, 10px);
+      margin-bottom: var(--set-relationship-buttons-button-margin-bottom, 0);
     }
+    background-color: var(--set-relationship-buttons-button-background-color, azure);
   }
 </style>
