@@ -23,7 +23,7 @@
       const parsed = Number.parseInt(key);
       numbers.push(parsed);
     }
-    const reponse = await fetch(`/api/chat-room/${data.room.id}`, {
+    const reponse = await fetch(`/api/chat-room/mute/${data.room.id}`, {
       method: "POST",
       body: JSON.stringify({
         ids: numbers,
