@@ -113,7 +113,7 @@
       bind:this={passwordElem}
       disabled={data.room.kind !== 1}
       minlength="8"
-      autocomplete="on"
+      autocomplete="current-password"
     />
   </label>
   <div>
