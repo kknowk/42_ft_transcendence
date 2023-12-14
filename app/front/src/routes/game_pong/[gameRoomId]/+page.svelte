@@ -3,6 +3,7 @@
   import type { Socket } from "socket.io-client";
   import { onMount } from "svelte";
   import { page } from "$app/stores"; // SvelteKitのpageストアをインポート
+  import { goto } from "$app/navigation";
 
   // import type { UserRelationshipKind } from "$lib/back/user/user.entity";
   // import SetRelationshipButtons from "$lib/components/set-relationship-buttons.svelte";
@@ -75,7 +76,7 @@
     const gameRoomId = $page.params.gameRoomId;
 
     timer = setTimeout(() => {
-      window.location.href = "/home";
+      goto("/home", {invalidateAll: true});
     }, 120000) as any as number; // 120000ミリ秒 = 2分
 
     // ゲームルームIDを使用してソケット接続を確立
@@ -96,7 +97,7 @@
       isWinner = data.winner === userId;
       // 3秒後にホーム画面にリダイレクト
       setTimeout(() => {
-        window.location.href = "/home";
+        goto("/home", {invalidateAll: true});
       }, 3000);
     });
 
@@ -106,7 +107,7 @@
       // alert("Connection lost. Redirecting to home.");
       // 3秒後にホーム画面にリダイレクト
       setTimeout(() => {
-        window.location.href = "/home";
+        goto("/home", {invalidateAll: true});
       }, 3000);
     });
 
@@ -221,7 +222,9 @@
   {:else if isDisconnect}
     <img src={"/Nocontest.jpg"} alt="No contest" />
   {:else}
-    <canvas bind:this={canvas} width="900" height="600" />
+    <div>
+      <canvas bind:this={canvas} width="900" height="600" />
+    </div>
     <button on:click={handleReady} disabled={playerReady}>準備完了</button>
     <button on:click={handle_LunaticReady} disabled={LunaticReady}>ルナティックモード</button>
   {/if}
@@ -231,6 +234,12 @@
   .game-container {
     text-align: center;
     margin-top: 50px;
+
+    display: grid;
+    & button {
+      border: solid;
+      padding: 1em;
+    }
   }
   canvas {
     border: 1px solid #ddd;
