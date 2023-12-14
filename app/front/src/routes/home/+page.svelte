@@ -21,7 +21,10 @@
         matchDetails = result.match;
         matchFound = true;
         const gameRoomId = matchDetails.gameRoomId; // サーバーから受け取ったゲームルームID
-        setTimeout(() => (window.location.href = `/game_pong/${gameRoomId}`), 0);
+        setTimeout(
+          () => (window.location.href = `/game_pong/${gameRoomId}`),
+          0,
+        );
       }
     } catch (error) {
       console.error("Matchmaking error:", error);
@@ -38,7 +41,9 @@
       return [];
     }
     console.log(user_name);
-    const response = await fetch(`/api/user/find-by-partial-name/${encodeURIComponent(user_name)}`);
+    const response = await fetch(
+      `/api/user/find-by-partial-name/${encodeURIComponent(user_name)}`,
+    );
     if (response.ok) {
       const answer = (await response.json()) as IUserWithRelationship[];
       const spliceIndex = answer.findIndex((value) => {
@@ -76,7 +81,7 @@
     <button on:click={startMatchmaking}>マッチメイキングを開始</button>
   {/if}
 
-  <div>
+  <div style=" margin-top: 1cm;">
     <search>
       <label>
         Search by user name:
@@ -131,6 +136,7 @@
     grid-template-columns: 1fr;
 
     & button {
+      padding: 1em;
       text-align: center;
       background-color: antiquewhite;
     }
