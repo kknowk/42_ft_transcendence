@@ -107,6 +107,12 @@ export class DirectMessageLog {
     default: 'false',
   })
   is_html: boolean;
+
+  @Column({
+	type: 'boolean',
+	default: 'false',
+  })
+  is_liked: boolean;
 }
 
 export type IDirectMessageLog = {

@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
   NotFoundException,
   ParseIntPipe,
+  ParseBoolPipe,
   PayloadTooLargeException,
   UseInterceptors,
 } from '@nestjs/common';
@@ -75,6 +76,39 @@ export class ApiDirectMessageRoomController {
     }
     return await this.directMessageRoomService.get_logs(room.id, rangeRequest);
   }
+
+  @Post('like/:counterpart_id/:log_id/:is_liked')
+  async like_log(
+    @Req() req: Request,
+    @Param('counterpart_id', ParseIntPipe) counterpart_id: number,
+    @Param('log_id', ParseIntPipe) log_id: number,
+    @Param('is_liked', ParseBoolPipe) is_liked: boolean,
+  ) {
+    const user = req.user as IUser;
+    const relationship = await this.userService.get_lowest_relationship(
+      user.id,
+      counterpart_id,
+      );
+      if (relationship === UserRelationshipKind.banned) {
+        throw new UnauthorizedException();
+      }
+    const room_id = await this.directMessageRoomService.get_room_id(
+      user.id,
+      counterpart_id,
+      );
+      if (room_id == null) {
+        throw new NotFoundException();
+      }
+    const target_log = await this.directMessageRoomService.get_log(log_id);
+    if (target_log == null) {
+      throw new NotFoundException();
+    }
+    if (target_log.is_liked !== is_liked && target_log.member_id !== user.id) {
+      await this.directMessageRoomService.like_log(log_id, is_liked);
+    }
+    return is_liked;
+  }
+
 
   @Post('delete/:room_id')
   async delete(@Req() req: Request, @Param('room_id') room_id_text: string) {

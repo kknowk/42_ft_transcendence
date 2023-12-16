@@ -158,6 +158,16 @@
       await goto("/home", { invalidateAll: true });
     }
   }
+
+  async function toggleLike(index: number) {
+    const option = structuredClone(fetchOptions);
+    // console.log("before: ", logs![index].is_liked);
+    logs![index].is_liked = !logs![index].is_liked;
+    // console.log("after: ", logs![index].is_liked);
+    let url = `/api/direct-message-room/like/${data.counterpart.id}/${logs![index].id}/${logs![index].is_liked}`;
+    const response = await fetch(url, option);
+    console.log(response);
+  }
 </script>
 
 <svelte:head>
@@ -170,10 +180,10 @@
 <div class="grid-container">
   <div class="grid-main">
     <EnterKeyTextArea sendMessageCallback={sendMessage} />
-    <main>
+    <main class="chat-container">
       {#if logs}
-        {#each logs as log}
-          <div class="message">
+        {#each logs as log, index}
+          <div class="message {log.member_id === data.user.id ? 'mine' : 'others'}">
             <Message
               message_id={log.id}
               user_id={log.member_id}
@@ -185,6 +195,13 @@
               {now}
               is_html={log.is_html}
             />
+            <button
+              class="like-button"
+              on:click={() => toggleLike(index)}
+              disabled={log.member_id === data.user.id ? true : false}
+            >
+              {log.is_liked ? '♥' : '♡'} Like
+            </button>
           </div>
         {/each}
         <InfiniteScrolling disabled={infiniteDisabled} callback={getHistory} />
@@ -243,5 +260,52 @@
   .message + .message {
     border-top: solid;
     border-top-color: slategray;
+  }
+
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    /* max-width: 600px; or your preferred width */
+    margin: auto;
+  }
+
+  .message {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 80%;
+    position: relative;
+  }
+
+  .mine {
+    background-color: #DCF8C6;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+  }
+
+  .others {
+    background-color: #ECECEC;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+	padding-bottom: 20px;
+  }
+
+  .like-button {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #555;
+  }
+  
+  .like-button:disabled, .like-button:disabled:hover{
+    cursor: default;
+    color: #555;
+  }
+
+  .like-button:hover {
+    color: #d00;
   }
 </style>

@@ -48,6 +48,7 @@ export class DirectMessageRoomService {
       .addSelect('l.content', 'content')
       .addSelect('l.date', 'date')
       .addSelect('l.is_html', 'is_html')
+      .addSelect('l.is_liked', 'is_liked')
       .where('l.room_id=:room_id AND l.id > :hide_log_id', {
         room_id,
         hide_log_id,
@@ -329,5 +330,20 @@ export class DirectMessageRoomService {
         hide_log_id: log_id,
       },
     );
+  }
+
+  async like_log(log_id: number, is_liked: boolean) {
+	  await this.logRepository.update(
+      {
+        id: log_id,
+      },
+      {
+        is_liked: is_liked,
+      },
+    );
+  }
+
+  async get_log(log_id: number) {
+    return await this.logRepository.findOne({ where: { id: log_id } });
   }
 }
