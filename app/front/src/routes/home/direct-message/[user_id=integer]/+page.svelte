@@ -265,7 +265,6 @@
   .chat-container {
     display: flex;
     flex-direction: column;
-    /* max-width: 600px; or your preferred width */
     margin: auto;
   }
 

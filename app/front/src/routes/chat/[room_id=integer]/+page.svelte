@@ -240,8 +240,9 @@
 <main>
   {#if logs}
     <EnterKeyTextarea sendMessageCallback={sendMessage} />
+    <div class="chat-container">
     {#each logs as log}
-      <div class="message">
+      <div class="message {log.member_id === data.user.id ? 'mine' : 'others'}">
         <Message
           message_id={log.id}
           content={log.content}
@@ -254,6 +255,7 @@
       </div>
     {/each}
     <InfiniteScrolling disabled={infiniteDisabled} callback={get_history} />
+    </div>
   {:else if data.room.kind === 0}
     You have been invited to {data.room.name}.
     <div>
@@ -290,4 +292,32 @@
       border-top-color: slategray;
     }
   }
+
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+  }
+
+  .message {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 80%;
+    position: relative;
+  }
+
+  .mine {
+    background-color: #DCF8C6;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+  }
+
+  .others {
+    background-color: #ECECEC;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+	  padding-bottom: 20px;
+  }
+
 </style>
